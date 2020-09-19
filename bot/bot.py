@@ -5,7 +5,6 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from .services.proposer import Proposer
 
-TOKEN = "NzU2Njc3MjY5NzMyNDU4NTQ2.X2VUnw.EyEIbrMW2CXcO0ETfjLFrrRY250"
 MAX_WORKERS = 3
 
 
