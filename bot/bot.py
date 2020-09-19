@@ -5,10 +5,8 @@ import os
 from bot.models.intent import Intent
 from concurrent.futures import ThreadPoolExecutor
 from .services.proposer import Proposer
-from time import sleep
 
 MAX_WORKERS = 3
-
 
 client = discord.Client()
 
