@@ -2,14 +2,15 @@ import discord
 import threading
 import os
 
+from bot.models.intent import Intent
 from concurrent.futures import ThreadPoolExecutor
 from .services.proposer import Proposer
+from time import sleep
 
 MAX_WORKERS = 3
 
 
 client = discord.Client()
-proposer = Proposer()
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -36,13 +37,24 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    proposer = Proposer()
+
     # Determine intent
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        executor.submit(proposer.determine_intent, (message.content))
+        future = executor.submit(proposer.determine_intent, (message.content))
+        intent = future.result()[0]
 
+    if intent == Intent.PlayGameIntent:
+        await message.channel.send("PlayGameIntent")
 
-    # Respond to user
-    await message.channel.send(f"hey {message.author}!")
+    if intent == Intent.AskQuestionIntent:
+        await message.channel.send("AskQuestionIntent")
+
+    if intent == Intent.UpdateProfileIntent:
+        await message.channel.send("UpdateProfileIntent")
+
+    if intent == Intent.UnknownIntent:
+        await message.channel.send(f"Hey there {message.author}, I don't know what you're trying to do")
 
 
 client.run(os.environ.get("BOT_TOKEN"))
