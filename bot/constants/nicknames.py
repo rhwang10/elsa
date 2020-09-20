@@ -25,8 +25,9 @@ SAYED = [
     "mabwi",
     "sayed",
     "malawi",
-    "sayed malawi"
-    "silhouette"
+    "sayed malawi",
+    "silhouette",
+    "coach"
 ]
 
 GEORGE = [
