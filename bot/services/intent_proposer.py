@@ -51,6 +51,7 @@ class IntentProposer(Proposer):
         )
 
     def is_identify_player_intent(self, words):
+        # Let's weight identify keywords higher than other keywords
         self.intents.append(
-            (Intent.IdentifyPlayerIntent, self.count_keywords(IS_IDENTIFY_PLAYER_INTENT, words) / float(len(words)))
+            (Intent.IdentifyPlayerIntent, self.count_keywords(IS_IDENTIFY_PLAYER_INTENT, words) * 2 / float(len(words)))
         )

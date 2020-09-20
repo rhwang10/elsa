@@ -53,19 +53,24 @@ async def on_message(message):
     # todo: make proposers stateless
     intent_proposer = IntentProposer()
     question_proposer = QuestionProposer()
+    is_question = False
 
     # Determine intent
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         intent_future = executor.submit(intent_proposer.determine_intent, (message.content))
         question_intent_future = executor.submit(question_proposer.determine_intent, (message.content))
 
-        intent = intent_future.result()[0]
-        question_intent = question_intent_future.result()[0]
+        intent, intent_confidence = intent_future.result()[0], intent_future.result()[1]
+        question_intent, question_confidence = question_intent_future.result()[0], question_intent_future.result()[1]
 
-    def is_question(message):
-        return search("\?", message.content)
+        print(question_confidence)
+        print(intent_confidence)
+        is_question = True if (question_confidence >= intent_confidence) else False
 
-    if (is_question(message)):
+    # def is_question(message):
+    #     return search("\?", message.content)
+
+    if is_question:
         await route_question_intent(message, question_intent)
     else:
         await route_intent(message, intent)
