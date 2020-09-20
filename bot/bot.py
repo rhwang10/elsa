@@ -5,6 +5,8 @@ import os
 from re import search
 
 from bot.models.intent import Intent
+from bot.models.question_intent import QuestionIntent
+from bot.constants.game_players import LeaguePlayers
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -60,12 +62,40 @@ async def on_message(message):
         intent = intent_future.result()[0]
         question_intent = question_intent_future.result()[0]
 
+    def is_question(message):
+        return search("\?", message.content)
+
+    if (is_question(message)):
+        await route_question_intent(message, question_intent)
+    else:
+        await route_intent(message, intent)
+
+
+async def route_question_intent(message, intent):
+
+    if intent == QuestionIntent.EnoughForFivesIntent:
+
+        def filter_offline(member):
+            return member.status != discord.Status.offline and not member.bot
+
+        online_members = list(map(lambda x: x.name, filter(filter_offline, message.guild.members)))
+        league = list(filter(lambda x: x in LeaguePlayers, online_members))
+
+        if len(league) > 5:
+            await message.channel.send("Looks like it, online members that play league:\n" + ',\n'.join(league))
+        else:
+            await message.channel.send(f"Nope, looks like we need {5 - len(league)} more. Current online members that play league:\n" + ',\n'.join(league))
+
+    if intent == QuestionIntent.SkillQuestionIntent:
+        await message.channel.send("SkillQuestionIntent, not yet implemented")
+
+    if intent == QuestionIntent.UnknownQuestionIntent:
+        await message.channel.send(f"Hey there {message.author}, I don't know what you're trying to ask me")
+
+async def route_intent(message, intent):
+
     if intent == Intent.PlayGameIntent:
         await message.channel.send("Ability to send messages to other players to play a game is not yet implemented")
-
-    if intent == Intent.AskQuestionIntent:
-        msg = question_service.lookup(message)
-        await message.channel.send(msg)
 
     if intent == Intent.UpdateProfileIntent:
         await message.channel.send("Profiles are not yet implemented")

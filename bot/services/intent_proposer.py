@@ -23,7 +23,6 @@ from bot.services.base.proposer import Proposer
 
 IS_PLAY_GAME_INTENT = "(play|minecraft|league of legends|league|valorant|game|among|us|among us)"
 IS_UPDATE_PROFILE_INTENT = "(update|change|email)"
-IS_ASK_QUESTION_INTENT = "(\?)"
 IS_IDENTIFY_PLAYER_INTENT = "(opgg|op|gg|identify|get|find|who|profile" + \
     "|".join(JAKE + DAVID + SENIOR_DAVID + SAYED + KLAI + GEORGE + HENRY + ROBERT + MIKE) + \
 ")"
@@ -36,28 +35,22 @@ class IntentProposer(Proposer):
 
     def determine_intent(self, input: str):
         words = self.clean(input)
-        self.isPlayGameIntent(words)
-        self.isUpdateProfileIntent(words)
-        self.isAskQuestionIntent(words)
-        self.isIdentifyPlayerIntent(words)
+        self.is_play_game_intent(words)
+        self.is_update_profile_intent(words)
+        self.is_identify_player_intent(words)
         return max(self.intents, key=lambda x: x[1])
 
-    def isPlayGameIntent(self, words):
+    def is_play_game_intent(self, words):
         self.intents.append(
             (Intent.PlayGameIntent, self.count_keywords(IS_PLAY_GAME_INTENT, words) / float(len(words)))
         )
 
-    def isUpdateProfileIntent(self, words):
+    def is_update_profile_intent(self, words):
         self.intents.append(
             (Intent.UpdateProfileIntent, self.count_keywords(IS_UPDATE_PROFILE_INTENT, words) / float(len(words)))
         )
 
-    def isAskQuestionIntent(self, words):
-        self.intents.append(
-            (Intent.AskQuestionIntent, self.count_keywords(IS_ASK_QUESTION_INTENT, words) / float(len(words)))
-        )
-
-    def isIdentifyPlayerIntent(self, words):
+    def is_identify_player_intent(self, words):
         self.intents.append(
             (Intent.IdentifyPlayerIntent, self.count_keywords(IS_IDENTIFY_PLAYER_INTENT, words) / float(len(words)))
         )
