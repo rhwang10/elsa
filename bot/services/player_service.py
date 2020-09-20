@@ -12,6 +12,7 @@ from bot.constants.nicknames import (
     MIKE
 )
 
+from bot.services.base.lookup_service import LookupService
 from bot.models.players import Player
 
 PLAYERS = [
@@ -26,17 +27,18 @@ PLAYERS = [
     (Player.LA_CHURRO, MIKE)
 ]
 
-class PlayerService:
+class PlayerService(LookupService):
 
     def __init__(self):
-        self.base_url = "https://na.op.gg/summoner/userName="
+        super().__init__()
         self.player_regexes = [
             (p[0], "(" + "|".join(p[1]) + ")") for p in PLAYERS
         ]
         self.identified_counts = {}
 
-    def lookup_player(self, discord_message):
+    def lookup(self, message):
 
+        discord_message = message.content
         self._obtain_counts_from_msg(discord_message)
         sorted_player_counts = sorted([(k,v) for k,v in self.identified_counts.items()], key = lambda x: x[1])
         op_gg_name = sorted_player_counts[-1][0].get_opgg_name()

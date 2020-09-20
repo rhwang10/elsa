@@ -42,7 +42,8 @@ HENRY = [
     "freakywoods",
     "feeder",
     "henry",
-    "freakyforest"
+    "freakyforest",
+    "scrub"
 ]
 
 KLAI = [
