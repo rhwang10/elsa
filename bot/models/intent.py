@@ -5,3 +5,4 @@ class Intent(Enum):
     PlayGameIntent = 2
     AskQuestionIntent = 3
     UpdateProfileIntent = 4
+    IdentifyPlayerIntent = 5

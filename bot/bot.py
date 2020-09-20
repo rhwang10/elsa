@@ -2,13 +2,18 @@ import discord
 import threading
 import os
 
+from re import search
+
 from bot.models.intent import Intent
+
 from concurrent.futures import ThreadPoolExecutor
 from .services.proposer import Proposer
+from .services.player_service import PlayerService
 
 MAX_WORKERS = 3
 
 client = discord.Client()
+player_service = PlayerService()
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -35,6 +40,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    if not (search("elsa", message.content.lower())):
+        return
+
     proposer = Proposer()
 
     # Determine intent
@@ -50,6 +58,10 @@ async def on_message(message):
 
     if intent == Intent.UpdateProfileIntent:
         await message.channel.send("UpdateProfileIntent")
+
+    if intent == Intent.IdentifyPlayerIntent:
+        msg = player_service.lookup_player(message.content)
+        await message.channel.send(msg)
 
     if intent == Intent.UnknownIntent:
         await message.channel.send(f"Hey there {message.author}, I don't know what you're trying to do")
