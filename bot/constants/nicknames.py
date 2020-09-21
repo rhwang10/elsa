@@ -27,7 +27,13 @@ SAYED = [
     "malawi",
     "sayed malawi",
     "silhouette",
-    "coach"
+    "coach",
+    "eat my ass",
+    "ema",
+    "eat my",
+    "bunghole",
+    "italian grandma",
+    "italian"
 ]
 
 GEORGE = [
