@@ -10,7 +10,7 @@ class Player(Enum):
     SAINTS_INTO_THE_SEA = "SaintsIntoTheSea"
     HIDDEN_KEY = "hidden+key"
     RESPECT_THE_PIPE = "RespectThePipe"
-    STEFAN = "mogorath77"
+    STEFAN = "morgorath77"
 
     def get_opgg_name(self):
         return self.value
