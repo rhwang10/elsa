@@ -6,7 +6,7 @@ LeaguePlayers = [
     "David",
     "DLai",
     "ItsMike",
-    "KLAI",
+    "klaiii",
     "Makedemrain",
     "Mr.Dontrespect",
     "ScholarOfTheFirstMeme",
