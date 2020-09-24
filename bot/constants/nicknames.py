@@ -108,3 +108,13 @@ MIKE = [
     "la churro",
     "churro"
 ]
+
+STEFAN = [
+    "stefan",
+    "steve",
+    "stevee",
+    "stefan laos",
+    "malzahar",
+    "toxic",
+    "steal chickens"
+]

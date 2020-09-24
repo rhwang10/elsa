@@ -9,7 +9,8 @@ from bot.constants.nicknames import (
     GEORGE,
     HENRY,
     ROBERT,
-    MIKE
+    MIKE,
+    STEFAN
 )
 
 from bot.services.base.lookup_service import LookupService
@@ -24,7 +25,8 @@ PLAYERS = [
     (Player.RESPECT_THE_PIPE, GEORGE),
     (Player.FREAKWOODS, HENRY),
     (Player.YEN_SID, ROBERT),
-    (Player.LA_CHURRO, MIKE)
+    (Player.LA_CHURRO, MIKE),
+    (Player.STEFAN, STEFAN)
 ]
 
 class PlayerService(LookupService):

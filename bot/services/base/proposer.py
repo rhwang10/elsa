@@ -22,7 +22,7 @@ class Proposer:
             raise Exception("Need a valid string in the proposer to tokenize")
 
         word_tokens = word_tokenize(input)
-        return ' '.join([word for word in word_tokens if word not in stop_words])
+        return ' '.join([word.lower() for word in word_tokens if word not in stop_words])
 
     def count_keywords(self, regex, words) -> int:
         return len(re.findall(regex, words))
