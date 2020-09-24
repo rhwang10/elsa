@@ -11,7 +11,8 @@ from bot.constants.nicknames import (
     GEORGE,
     HENRY,
     ROBERT,
-    MIKE
+    MIKE,
+    STEFAN
 )
 from bot.services.base.proposer import Proposer
 
@@ -24,7 +25,7 @@ from bot.services.base.proposer import Proposer
 IS_PLAY_GAME_INTENT = "(play|minecraft|league of legends|league|valorant|game|among|us|among us)"
 IS_UPDATE_PROFILE_INTENT = "(update|change|email)"
 IS_IDENTIFY_PLAYER_INTENT = "(opgg|op|gg|identify|get|find|who|profile" + \
-    "|".join(JAKE + DAVID + SENIOR_DAVID + SAYED + KLAI + GEORGE + HENRY + ROBERT + MIKE) + \
+    "|".join(JAKE + DAVID + SENIOR_DAVID + SAYED + KLAI + GEORGE + HENRY + ROBERT + MIKE + STEFAN) + \
 ")"
 
 class IntentProposer(Proposer):
