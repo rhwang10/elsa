@@ -110,7 +110,7 @@ async def route_intent(message, intent):
         await message.channel.send(msg)
 
     if intent == Intent.UnknownIntent:
-        await message.channel.send(f"Hey there {message.author}, I don't know what you're trying to do")
+        await message.channel.send("eat my ass bitch")
 
 
 client.run(os.environ.get("BOT_TOKEN"))
