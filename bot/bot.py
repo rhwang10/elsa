@@ -86,21 +86,21 @@ async def route_question_intent(message, intent):
         online_members = list(map(lambda x: x.name, filter(filter_offline, message.guild.members)))
         league = list(filter(lambda x: x in LeaguePlayers, online_members))
 
-        if len(league) > 5:
+        if len(league) > 4:
             await message.channel.send("Looks like it, online members that play league:\n" + ',\n'.join(league))
         else:
             await message.channel.send(f"Nope, looks like we need {5 - len(league)} more. Current online members that play league:\n" + ',\n'.join(league))
 
     if intent == QuestionIntent.SkillQuestionIntent:
-        await message.channel.send("SkillQuestionIntent, not yet implemented")
+        await message.channel.send("SkillQuestionIntent, not yet implemented, eat my ass bitch")
 
     if intent == QuestionIntent.UnknownQuestionIntent:
-        await message.channel.send(f"Hey there {message.author}, I don't know what you're trying to ask me")
+        await message.channel.send("eat my ass bitch")
 
 async def route_intent(message, intent):
 
     if intent == Intent.PlayGameIntent:
-        await message.channel.send("Ability to send messages to other players to play a game is not yet implemented")
+        await message.channel.send("Ability to send messages to other players to play a game is not yet implemented, eat my ass bitch")
 
     if intent == Intent.UpdateProfileIntent:
         await message.channel.send("Profiles are not yet implemented")

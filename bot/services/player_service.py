@@ -23,10 +23,10 @@ PLAYERS = [
     (Player.SILHOUETTE, SAYED),
     (Player.HIDDEN_KEY, KLAI),
     (Player.RESPECT_THE_PIPE, GEORGE),
-    (Player.FREAKWOODS, HENRY),
+    (Player.FREAKYWOODS, HENRY),
     (Player.YEN_SID, ROBERT),
     (Player.LA_CHURRO, MIKE),
-    (Player.STEFAN, STEFAN)
+    (Player.MORGORATH77, STEFAN)
 ]
 
 class PlayerService(LookupService):
