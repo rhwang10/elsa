@@ -67,9 +67,6 @@ async def on_message(message):
         print(intent_confidence)
         is_question = True if (question_confidence >= intent_confidence) else False
 
-    # def is_question(message):
-    #     return search("\?", message.content)
-
     if is_question:
         await route_question_intent(message, question_intent)
     else:
@@ -106,7 +103,7 @@ async def route_intent(message, intent):
         await message.channel.send("Profiles are not yet implemented")
 
     if intent == Intent.IdentifyPlayerIntent:
-        msg = player_service.lookup(message)
+        msg = player_service.get_player_opgg_profile(message)
         await message.channel.send(msg)
 
     if intent == Intent.UnknownIntent:
