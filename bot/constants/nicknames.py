@@ -6,7 +6,8 @@ DAVID = [
     "biiiig",
     "big",
     "chick",
-    "dxu1"
+    "dxu1",
+    "junior david"
 ]
 
 SENIOR_DAVID = [
@@ -65,7 +66,8 @@ KLAI = [
     "lan",
     "tao",
     "maoklai",
-    "maokai"
+    "maokai",
+    "instahoe"
 ]
 
 JAKE = [
@@ -79,7 +81,9 @@ JAKE = [
     "into",
     "sea",
     "jek",
-    "beebert"
+    "beebert",
+    "bee",
+    "ants"
 ]
 
 ROBERT = [
