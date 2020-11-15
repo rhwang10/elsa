@@ -7,7 +7,6 @@ class QuestionService(LookupService):
     def __init__(self):
         super().__init__()
 
-    def lookup(self, message):
-
-        # determine question intent
-        return message
+    def choose_random_name(self):
+        profile_name = self.lookup_random_player()
+        return self.base_url + profile_name

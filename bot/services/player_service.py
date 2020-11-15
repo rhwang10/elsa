@@ -6,7 +6,6 @@ class PlayerService(LookupService):
 
     def __init__(self):
         super().__init__()
-        self.base_url = "https://na.op.gg/summoner/userName="
 
     def get_player_opgg_profile(self, message):
         profile_name = self.lookup(message)

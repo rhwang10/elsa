@@ -89,7 +89,8 @@ async def route_question_intent(message, intent):
             await message.channel.send(f"Nope, looks like we need {5 - len(league)} more. Current online members that play league:\n" + ',\n'.join(league))
 
     if intent == QuestionIntent.SkillQuestionIntent:
-        await message.channel.send("SkillQuestionIntent, not yet implemented, eat my ass bitch")
+        msg = question_service.choose_random_name()
+        await message.channel.send(msg)
 
     if intent == QuestionIntent.UnknownQuestionIntent:
         await message.channel.send("eat my ass bitch")
