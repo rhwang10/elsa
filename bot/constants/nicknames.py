@@ -7,7 +7,9 @@ DAVID = [
     "big",
     "chick",
     "dxu1",
-    "junior david"
+    "junior david",
+    "poppy",
+    "poopy"
 ]
 
 SENIOR_DAVID = [
@@ -34,7 +36,8 @@ SAYED = [
     "eat my",
     "bunghole",
     "italian grandma",
-    "italian"
+    "italian",
+    "worst lee sin"
 ]
 
 GEORGE = [
@@ -98,7 +101,8 @@ ROBERT = [
     "yen",
     "sid",
     "yensid",
-    "roobert"
+    "roobert",
+    "lee sin"
 ]
 
 MIKE = [
@@ -110,7 +114,8 @@ MIKE = [
     "itsmike",
     "its mike",
     "la churro",
-    "churro"
+    "churro",
+    "kha zix"
 ]
 
 STEFAN = [
