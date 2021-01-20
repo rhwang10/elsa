@@ -31,7 +31,6 @@ SAYED = [
     "sayed malawi",
     "silhouette",
     "coach",
-    "eat my ass",
     "ema",
     "eat my",
     "bunghole",

@@ -3,6 +3,7 @@ import threading
 import os
 
 from re import search
+from flask import Flask, request, jsonify
 
 from bot.models.intent import Intent
 from bot.models.question_intent import QuestionIntent
@@ -93,12 +94,12 @@ async def route_question_intent(message, intent):
         await message.channel.send(msg)
 
     if intent == QuestionIntent.UnknownQuestionIntent:
-        await message.channel.send("eat my ass bitch")
+        await message.channel.send("Unknown question")
 
 async def route_intent(message, intent):
 
     if intent == Intent.PlayGameIntent:
-        await message.channel.send("Ability to send messages to other players to play a game is not yet implemented, eat my ass bitch")
+        await message.channel.send("Ability to send messages to other players to play a game is not yet implemented")
 
     if intent == Intent.UpdateProfileIntent:
         await message.channel.send("Profiles are not yet implemented")
@@ -108,7 +109,7 @@ async def route_intent(message, intent):
         await message.channel.send(msg)
 
     if intent == Intent.UnknownIntent:
-        await message.channel.send("eat my ass bitch")
+        await message.channel.send("Unknown intent")
 
 
 client.run(os.environ.get("BOT_TOKEN"))
