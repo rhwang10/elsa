@@ -6,3 +6,5 @@ class Intent(Enum):
     AskQuestionIntent = 3
     UpdateProfileIntent = 4
     IdentifyPlayerIntent = 5
+    FlipTableIntent = 6
+    UnflipTableIntent = 7

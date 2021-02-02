@@ -47,7 +47,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if not (search("elsa", message.content.lower())):
+    if not (search("elsa", message.content.lower())) \
+    and not (search("┻━┻", message.content)) \
+    and not (search("┳━┳", message.content)) \
+    and not search("┏━┓", message.content):
         return
 
     # proposrs are stateful, we need to make new ones on each run
@@ -64,8 +67,9 @@ async def on_message(message):
         intent, intent_confidence = intent_future.result()[0], intent_future.result()[1]
         question_intent, question_confidence = question_intent_future.result()[0], question_intent_future.result()[1]
 
-        print(question_confidence)
-        print(intent_confidence)
+        print(f"Intent: {intent}, Confidence: {str(intent_confidence)}")
+        print(f"Question Intent: {question_intent}, Confidence: {str(question_confidence)}")
+
         is_question = True if (question_confidence >= intent_confidence) else False
 
     if is_question:
@@ -107,6 +111,12 @@ async def route_intent(message, intent):
     if intent == Intent.IdentifyPlayerIntent:
         msg = player_service.get_player_opgg_profile(message)
         await message.channel.send(msg)
+
+    if intent == Intent.FlipTableIntent:
+        await message.channel.send("Tables are nice, please do not flip ┏━┓┏━┓┏━┓ ︵ /(^.^/)")
+
+    if intent == Intent.UnflipTableIntent:
+        await message.channel.send("(╯°□°)╯︵ ┻━┻")
 
     if intent == Intent.UnknownIntent:
         await message.channel.send("Unknown intent")
