@@ -1,6 +1,7 @@
 import discord
 import threading
 import os
+import random
 
 from re import search
 from flask import Flask, request, jsonify
@@ -21,6 +22,9 @@ MAX_WORKERS = 3
 client = discord.Client()
 player_service = PlayerService()
 question_service = QuestionService()
+
+FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
+UNFLIPPING_CHOICES = ["┬─┬ノ( ◕◡◕ ノ)", "┳━┳ ヽ(ಠل͜ಠ)ﾉ", "┏━┓┏━┓┏━┓ ︵ /(^.^/)", "┬─┬ノ( ಠ_ಠノ)", "(ヘ･_･)ヘ ┳━┳", "┳━┳ノ( OωOノ )", "┬──┬  ¯\_(ツ)", "┣ﾍ(^▽^ﾍ)Ξ(ﾟ▽ﾟ*)ﾉ┳━┳", "┬───┬ ノ༼ຈ ل͜ຈノ༽", "┬──┬  ノ( ゜-゜ノ)", "┏━┓ ︵ /(^.^/)"]
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -113,10 +117,10 @@ async def route_intent(message, intent):
         await message.channel.send(msg)
 
     if intent == Intent.FlipTableIntent:
-        await message.channel.send("Tables are nice, please do not flip ┏━┓┏━┓┏━┓ ︵ /(^.^/)")
+        await message.channel.send(random.choice(UNFLIPPING_CHOICES))
 
     if intent == Intent.UnflipTableIntent:
-        await message.channel.send("(╯°□°)╯︵ ┻━┻")
+        await message.channel.send(random.choice(FLIPPING_CHOICES))
 
     if intent == Intent.UnknownIntent:
         await message.channel.send("Unknown intent")
