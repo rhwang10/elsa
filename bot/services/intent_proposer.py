@@ -28,7 +28,7 @@ IS_IDENTIFY_PLAYER_INTENT = "(opgg|op|gg|identify|get|find|who|profile" + \
     "|".join(JAKE + DAVID + SENIOR_DAVID + SAYED + KLAI + GEORGE + HENRY + ROBERT + MIKE + STEFAN) + \
 ")"
 IS_FLIP_TABLE_INTENT = "(┻(─+|━+)┻)"
-IS_UNFLIP_TABLE_INTENT = "(┳(─+|━+)┳|┏(─+|━+)┓)"
+IS_UNFLIP_TABLE_INTENT = "(┳━+┳|┏━+┓|┬─+┬|┏─+┓)"
 
 class IntentProposer(Proposer):
 
