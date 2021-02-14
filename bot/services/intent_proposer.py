@@ -1,8 +1,8 @@
 # import nltk
 # import re
 
-from bot.models.intent import Intent
-from bot.constants.nicknames import (
+from models.intent import Intent
+from constants.nicknames import (
     JAKE,
     DAVID,
     SENIOR_DAVID,
@@ -14,7 +14,7 @@ from bot.constants.nicknames import (
     MIKE,
     STEFAN
 )
-from bot.services.base.proposer import Proposer
+from services.base.proposer import Proposer
 
 # from nltk.corpus import stopwords
 # nltk.download('stopwords')

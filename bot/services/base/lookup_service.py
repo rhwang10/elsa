@@ -1,9 +1,9 @@
 import re
 import random
 
-from bot.models.players import Player
+from models.players import Player
 
-from bot.constants.nicknames import (
+from constants.nicknames import (
     JAKE,
     DAVID,
     SENIOR_DAVID,

@@ -1,6 +1,6 @@
 import re
 
-from bot.services.base.lookup_service import LookupService
+from services.base.lookup_service import LookupService
 
 class QuestionService(LookupService):
 
