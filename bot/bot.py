@@ -16,12 +16,14 @@ from .services.intent_proposer import IntentProposer
 from .services.question_proposer import QuestionProposer
 from .services.player_service import PlayerService
 from .services.question_service import QuestionService
+from .services.sqs.client import SQSClient
 
 MAX_WORKERS = 3
 
 client = discord.Client()
 player_service = PlayerService()
 question_service = QuestionService()
+message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
 
 FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
 UNFLIPPING_CHOICES = ["┬─┬ノ( ◕◡◕ ノ)", "┳━┳ ヽ(ಠل͜ಠ)ﾉ", "┏━┓┏━┓┏━┓ ︵ /(^.^/)", "┬─┬ノ( ಠ_ಠノ)", "(ヘ･_･)ヘ ┳━┳", "┳━┳ノ( OωOノ )", "┬──┬  ¯\_(ツ)", "┣ﾍ(^▽^ﾍ)Ξ(ﾟ▽ﾟ*)ﾉ┳━┳", "┬───┬ ノ༼ຈ ل͜ຈノ༽", "┬──┬  ノ( ゜-゜ノ)", "┏━┓ ︵ /(^.^/)"]
@@ -55,6 +57,11 @@ async def on_message(message):
     and not (search("┻━┻", message.content)) \
     and not (search("┳━┳", message.content)) \
     and not search("┏━┓", message.content):
+        msg = {
+            "author": message.author.name,
+            "message": message.content
+        }
+        message_events_sqs_client.send_fifo_message(msg, "message_event")
         return
 
     # proposrs are stateful, we need to make new ones on each run
