@@ -1,7 +1,7 @@
 import re
 
-from models.question_intent import QuestionIntent
-from services.base.proposer import Proposer
+from ..models.question_intent import QuestionIntent
+from ..services.base.proposer import Proposer
 
 IS_SKILL_QUESTION_INTENT = "(great|good|bad|best|worst|horrible|amazing|incredible|terrible|feeder|toxic|mid|top|laner|adc|bot|support|supp|jg|jungle|bottom|ad carry|ad|carry|htv|hidden tilt village)"
 IS_ENOUGH_FOR_FIVES_INTENT = "(enough|fives|enough for fives|5s|fives|5|have|have enough|enough for 5s|do|we|have|cinco|enough feeders)"

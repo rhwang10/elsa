@@ -6,16 +6,16 @@ import random
 from re import search
 from flask import Flask, request, jsonify
 
-from models.intent import Intent
-from models.question_intent import QuestionIntent
-from constants.game_players import LeaguePlayers
+from .models.intent import Intent
+from .models.question_intent import QuestionIntent
+from .constants.game_players import LeaguePlayers
 
 from concurrent.futures import ThreadPoolExecutor
 
-from services.intent_proposer import IntentProposer
-from services.question_proposer import QuestionProposer
-from services.player_service import PlayerService
-from services.question_service import QuestionService
+from .services.intent_proposer import IntentProposer
+from .services.question_proposer import QuestionProposer
+from .services.player_service import PlayerService
+from .services.question_service import QuestionService
 
 MAX_WORKERS = 3
 

@@ -1,6 +1,6 @@
 import re
 
-from services.base.lookup_service import LookupService
+from .base.lookup_service import LookupService
 
 class PlayerService(LookupService):
 
