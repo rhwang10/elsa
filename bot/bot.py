@@ -88,7 +88,7 @@ async def on_message(message):
         # Sends message to message events FIFO queue
         # Consumer will persist the message to DynamoDB message-events table
         print("Writing message to SQS")
-        message_events_sqs_client.send_fifo_message(msg, "message_event")
+        # message_events_sqs_client.send_fifo_message(msg, "message_event")
         return
 
     # proposrs are stateful, we need to make new ones on each run
