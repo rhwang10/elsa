@@ -74,9 +74,9 @@ async def on_message(message):
     and not (search("┻━┻", message.content)) \
     and not (search("┳━┳", message.content)) \
     and not search("┏━┓", message.content):
-    
+
         msg = {
-            "author": message.author.name,
+            "authorId": message.author.id,
             "messageId": message.id,
             "timestamp": message.created_at.isoformat(),
             "message": message.content
