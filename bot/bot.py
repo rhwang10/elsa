@@ -143,10 +143,12 @@ async def route_intent(message, intent):
     channel = message.channel
 
     if intent == Intent.PlayGameIntent:
-        await _type(channel, "Ability to send messages to other players to play a game is not yet implemented")
+        print("Play game intent")
+        # await _type(channel, "Ability to send messages to other players to play a game is not yet implemented")
 
     if intent == Intent.UpdateProfileIntent:
-        await _type(channel, "Profiles are not yet implemented")
+        print("Update profile intent")
+        # await _type(channel, "Profiles are not yet implemented")
 
     if intent == Intent.IdentifyPlayerIntent:
         msg = player_service.get_player_opgg_profile(message)
@@ -159,7 +161,8 @@ async def route_intent(message, intent):
         await _type(channel, random.choice(FLIPPING_CHOICES))
 
     if intent == Intent.UnknownIntent:
-        await _type(channel, "Unknown intent")
+        print("Unknown Intent")
+        # await _type(channel, "Unknown intent")
 
 async def _type(channel, msg):
     await channel.trigger_typing()
