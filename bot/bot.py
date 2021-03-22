@@ -70,8 +70,6 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    print(type(message.author.id))
-
     if not (search("elsa", message.content.lower())) \
     and not (search("┻━┻", message.content)) \
     and not (search("┳━┳", message.content)) \
@@ -81,8 +79,13 @@ async def on_message(message):
             "message": message.content
         }
 
+        print(message.content)
+
         if message.content == "<:Sadge:805991489854898186>":
             await message.channel.send("<:Sadge:805991489854898186>")
+
+        if message.content == "<:PikaFacepalm:809954767773106196>":
+            await message.channel.send("<:PikaFacepalm:809954767773106196>")
         # message_events_sqs_client.send_fifo_message(msg, "message_event")
         return
 
