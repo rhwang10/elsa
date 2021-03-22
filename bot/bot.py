@@ -136,7 +136,8 @@ async def route_question_intent(message, intent):
         await _type(channel, msg)
 
     if intent == QuestionIntent.UnknownQuestionIntent:
-        await _type(channel, "Unknown question")
+        print("Unknown question intent")
+        # await _type(channel, "Unknown question")
 
 async def route_intent(message, intent):
 
