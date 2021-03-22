@@ -1,6 +1,7 @@
 import discord
 import threading
 import os
+import asyncio
 import random
 
 from re import search
@@ -20,7 +21,7 @@ from .services.sqs.client import SQSClient
 
 MAX_WORKERS = 3
 
-client = discord.Client()
+client = discord.Client(intents=discord.Intents.all())
 player_service = PlayerService()
 question_service = QuestionService()
 message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
@@ -45,6 +46,22 @@ async def on_ready():
 async def on_disconnect():
     print("Logged out")
 
+# Called when a member updates their profile
+# This is called when one or more of the following things change
+# status, activity, nickname, roles, pending
+@client.event
+async def on_member_update(before, after):
+    try:
+        activity_type = after.activity.type
+    except:
+        return
+
+    if activity_type is discord.ActivityType.streaming:
+        print("Someone is streaming?")
+
+# @client.event
+# async def on_voice_state_update(member, before, after):
+#     print("yes")
 
 @client.event
 async def on_message(message):
@@ -52,6 +69,8 @@ async def on_message(message):
     # Don't let bot respond to itself
     if message.author == client.user:
         return
+
+    print(type(message.author.id))
 
     if not (search("elsa", message.content.lower())) \
     and not (search("┻━┻", message.content)) \
@@ -61,7 +80,10 @@ async def on_message(message):
             "author": message.author.name,
             "message": message.content
         }
-        message_events_sqs_client.send_fifo_message(msg, "message_event")
+
+        if message.content == "<:Sadge:805991489854898186>":
+            await message.channel.send("<:Sadge:805991489854898186>")
+        # message_events_sqs_client.send_fifo_message(msg, "message_event")
         return
 
     # proposrs are stateful, we need to make new ones on each run
@@ -91,6 +113,8 @@ async def on_message(message):
 
 async def route_question_intent(message, intent):
 
+    channel = message.channel
+
     if intent == QuestionIntent.EnoughForFivesIntent:
 
         def filter_offline(member):
@@ -100,37 +124,43 @@ async def route_question_intent(message, intent):
         league = list(filter(lambda x: x in LeaguePlayers, online_members))
 
         if len(league) > 4:
-            await message.channel.send("Looks like it, online members that play league:\n" + ',\n'.join(league))
+            await _type(channel, "Looks like it, online members that play league:\n" + ',\n'.join(league))
         else:
-            await message.channel.send(f"Nope, looks like we need {5 - len(league)} more. Current online members that play league:\n" + ',\n'.join(league))
+            await _type(channel, f"Nope, looks like we need {5 - len(league)} more. Current online members that play league:\n" + ',\n'.join(league))
 
     if intent == QuestionIntent.SkillQuestionIntent:
         msg = question_service.choose_random_name()
-        await message.channel.send(msg)
+        await _type(channel, msg)
 
     if intent == QuestionIntent.UnknownQuestionIntent:
-        await message.channel.send("Unknown question")
+        await _type(channel, "Unknown question")
 
 async def route_intent(message, intent):
 
+    channel = message.channel
+
     if intent == Intent.PlayGameIntent:
-        await message.channel.send("Ability to send messages to other players to play a game is not yet implemented")
+        await _type(channel, "Ability to send messages to other players to play a game is not yet implemented")
 
     if intent == Intent.UpdateProfileIntent:
-        await message.channel.send("Profiles are not yet implemented")
+        await _type(channel, "Profiles are not yet implemented")
 
     if intent == Intent.IdentifyPlayerIntent:
         msg = player_service.get_player_opgg_profile(message)
-        await message.channel.send(msg)
+        await _type(channel, msg)
 
     if intent == Intent.FlipTableIntent:
-        await message.channel.send(random.choice(UNFLIPPING_CHOICES))
+        await _type(channel, random.choice(UNFLIPPING_CHOICES))
 
     if intent == Intent.UnflipTableIntent:
-        await message.channel.send(random.choice(FLIPPING_CHOICES))
+        await _type(channel, random.choice(FLIPPING_CHOICES))
 
     if intent == Intent.UnknownIntent:
-        await message.channel.send("Unknown intent")
+        await _type(channel, "Unknown intent")
 
+async def _type(channel, msg):
+    await channel.trigger_typing()
+    await asyncio.sleep(2)
+    await channel.send(msg)
 
 client.run(os.environ.get("BOT_TOKEN"))

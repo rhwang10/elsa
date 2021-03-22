@@ -2,3 +2,4 @@ discord.py
 nltk
 flask
 boto3
+asyncio
