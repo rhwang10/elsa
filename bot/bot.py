@@ -18,6 +18,7 @@ from .services.question_proposer import QuestionProposer
 from .services.player_service import PlayerService
 from .services.question_service import QuestionService
 from .services.sqs.client import SQSClient
+from .services.dynamo.client import DynamoClient
 
 MAX_WORKERS = 3
 
@@ -25,6 +26,7 @@ client = discord.Client(intents=discord.Intents.all())
 player_service = PlayerService()
 question_service = QuestionService()
 message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
+message_events_dynamo_client = DynamoClient("ELSA_MESSAGE_EVENTS_TABLE_NAME")
 
 FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
 UNFLIPPING_CHOICES = ["┬─┬ノ( ◕◡◕ ノ)", "┳━┳ ヽ(ಠل͜ಠ)ﾉ", "┏━┓┏━┓┏━┓ ︵ /(^.^/)", "┬─┬ノ( ಠ_ಠノ)", "(ヘ･_･)ヘ ┳━┳", "┳━┳ノ( OωOノ )", "┬──┬  ¯\_(ツ)", "┣ﾍ(^▽^ﾍ)Ξ(ﾟ▽ﾟ*)ﾉ┳━┳", "┬───┬ ノ༼ຈ ل͜ຈノ༽", "┬──┬  ノ( ゜-゜ノ)", "┏━┓ ︵ /(^.^/)"]
@@ -140,6 +142,11 @@ async def route_question_intent(message, intent):
     if intent == QuestionIntent.SkillQuestionIntent:
         msg = question_service.choose_random_name()
         await _type(channel, msg)
+
+    if intent == QuestionIntent.WordFrequencyIntent:
+        last_word = message.content.split(" ")[-1]
+        count = message_events_dynamo_client.get_word_frequency(message.author.id, last_word)
+        await _type(channel, f"You have said the word {last_word} in this Discord server at least {count} time(s)")
 
     if intent == QuestionIntent.UnknownQuestionIntent:
         print("Unknown question intent")

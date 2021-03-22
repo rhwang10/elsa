@@ -5,6 +5,7 @@ from ..services.base.proposer import Proposer
 
 IS_SKILL_QUESTION_INTENT = "(great|good|bad|best|worst|horrible|amazing|incredible|terrible|feeder|toxic|mid|top|laner|adc|bot|support|supp|jg|jungle|bottom|ad carry|ad|carry|htv|hidden tilt village)"
 IS_ENOUGH_FOR_FIVES_INTENT = "(enough|fives|enough for fives|5s|fives|5|have|have enough|enough for 5s|do|we|have|cinco|enough feeders)"
+WORD_FREQUENCY_INTENT = "(how many times have I said|count|frequency|number of times|number|times|how many)"
 
 class QuestionProposer(Proposer):
 
@@ -16,6 +17,7 @@ class QuestionProposer(Proposer):
         words = self.clean(input)
         self.is_skill_question_intent(words)
         self.is_enough_for_fives_intent(words)
+        self.is_word_frequency_intent(words)
         return max(self.intents, key=lambda x: x[1])
 
     def is_skill_question_intent(self, words):
@@ -26,4 +28,9 @@ class QuestionProposer(Proposer):
     def is_enough_for_fives_intent(self, words):
         self.intents.append(
             (QuestionIntent.EnoughForFivesIntent, self.count_keywords(IS_ENOUGH_FOR_FIVES_INTENT, words) / float(len(words)))
+        )
+
+    def is_word_frequency_intent(self, words):
+        self.intents.append(
+            (QuestionIntent.WordFrequencyIntent, self.count_keywords(WORD_FREQUENCY_INTENT, words) / float(len(words)))
         )
