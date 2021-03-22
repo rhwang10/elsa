@@ -77,6 +77,7 @@ async def on_message(message):
 
         msg = {
             "authorId": message.author.id,
+            "authorName": message.author.name,
             "messageId": message.id,
             "timestamp": message.created_at.isoformat(),
             "message": message.content
