@@ -74,19 +74,24 @@ async def on_message(message):
     and not (search("┻━┻", message.content)) \
     and not (search("┳━┳", message.content)) \
     and not search("┏━┓", message.content):
+    
         msg = {
             "author": message.author.name,
+            "messageId": message.id,
+            "timestamp": message.created_at.isoformat(),
             "message": message.content
         }
-
-        print(message.content)
 
         if message.content == "<:Sadge:805991489854898186>":
             await message.channel.send("<:Sadge:805991489854898186>")
 
         if message.content == "<:PikaFacepalm:809954767773106196>":
             await message.channel.send("<:PikaFacepalm:809954767773106196>")
-        # message_events_sqs_client.send_fifo_message(msg, "message_event")
+
+        # Sends message to message events FIFO queue
+        # Consumer will persist the message to DynamoDB message-events table
+        print("Writing message to SQS")
+        message_events_sqs_client.send_fifo_message(msg, "message_event")
         return
 
     # proposrs are stateful, we need to make new ones on each run
