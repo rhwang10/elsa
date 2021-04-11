@@ -25,7 +25,8 @@ MAX_WORKERS = 3
 client = discord.Client(intents=discord.Intents.all())
 player_service = PlayerService()
 question_service = QuestionService()
-message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
+
+# message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
 message_events_dynamo_client = DynamoClient("ELSA_MESSAGE_EVENTS_TABLE_NAME")
 
 FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
