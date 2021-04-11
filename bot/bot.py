@@ -88,9 +88,10 @@ async def on_message(message):
         # Sends message to message events FIFO queue
         # Consumer will persist the message to DynamoDB message-events table
         if message.content:
-            print("Writing message to SQS")
-            message_events_sqs_client.send_fifo_message(msg, "message_event")
-        
+            print("Writes to SQS disabled until I can migrate logic off the consumer onto the app")
+            # print("Writing message to SQS")
+            # message_events_sqs_client.send_fifo_message(msg, "message_event")
+
         return
 
     # proposrs are stateful, we need to make new ones on each run
@@ -140,9 +141,10 @@ async def route_question_intent(message, intent):
         await _type(channel, msg)
 
     if intent == QuestionIntent.WordFrequencyIntent:
-        last_word = message.content.split(" ")[-1]
-        count = message_events_dynamo_client.get_word_frequency(message.author.id, last_word)
-        await _type(channel, f"You have said the word {last_word} in this Discord server at least {count} time(s)")
+        await _type(channel, "Word frequencies disabled until I can migrate message consumer onto this app")
+        # last_word = message.content.split(" ")[-1]
+        # count = message_events_dynamo_client.get_word_frequency(message.author.id, last_word)
+        # await _type(channel, f"You have said the word {last_word} in this Discord server at least {count} time(s)")
 
     if intent == QuestionIntent.UnknownQuestionIntent:
         print("Unknown question intent")
