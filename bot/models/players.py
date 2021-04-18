@@ -8,7 +8,7 @@ class Player(Enum):
     LA_CHURRO = "la+churro"
     SILHOUETTE = "silhouette"
     SAINTS_INTO_THE_SEA = "SaintsIntoTheSea"
-    HIDDEN_KEY = "hidden+key"
+    HIDDEN_KEY = "KLAI"
     RESPECT_THE_PIPE = "RespectThePipe"
     MORGORATH77 = "morgorath77"
 
