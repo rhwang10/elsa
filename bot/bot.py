@@ -75,6 +75,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    if search("sister", message.content.lower()):
+        await _type("Anna is my sister! Thanks for asking! https://www.youtube.com/watch?v=TeQ_TTyLGMs&ab_channel=DisneyMusicVEVO")
+
     if not (search("elsa", message.content.lower())) \
     and not (search("┻━┻", message.content)) \
     and not (search("┳━┳", message.content)) \

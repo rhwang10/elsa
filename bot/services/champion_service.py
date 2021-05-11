@@ -46,6 +46,8 @@ class ChampionService(LookupService):
 
     def lookup_champion(self, message):
         discord_message = message.content
+        # clear the cache
+        self.identified_counts.clear()
         self._obtain_champion_counts_from_msg(discord_message)
         sorted_champion_counts = sorted([(champion_model, frequency) for champion_model, frequency in self.identified_counts.items()], key = lambda x: x[1])
         try:
