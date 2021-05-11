@@ -42,6 +42,8 @@ class PlayerService(LookupService):
 
     def lookup(self, message):
         discord_message = message.content
+        self.identified_counts = collections.defaultdict(int)
+        
         self._obtain_counts_from_msg(discord_message)
         sorted_player_counts = sorted([(player_model, frequency) for player_model, frequency in self.identified_counts.items()], key = lambda x: x[1])
         return sorted_player_counts[-1][0].get_opgg_name()
