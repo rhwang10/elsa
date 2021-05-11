@@ -8,3 +8,4 @@ class Intent(Enum):
     IdentifyPlayerIntent = 5
     FlipTableIntent = 6
     UnflipTableIntent = 7
+    ChampionInformationIntent = 8

@@ -29,7 +29,7 @@ IS_IDENTIFY_PLAYER_INTENT = "(opgg|op|gg|identify|get|find|who|profile" + \
 ")"
 IS_FLIP_TABLE_INTENT = "(┻(─+|━+)┻)"
 IS_UNFLIP_TABLE_INTENT = "(┳━+┳|┏━+┓|┬─+┬|┏─+┓)"
-
+IS_CHAMPION_INFORMATION_INTENT = "(tell me about|champion|champion information|champion profile|runes|for|runes for|rune)"
 class IntentProposer(Proposer):
 
     def __init__(self):
@@ -43,6 +43,7 @@ class IntentProposer(Proposer):
         self.is_identify_player_intent(words)
         self.is_flip_table_intent(words)
         self.is_unflip_table_intent(words)
+        self.is_champion_information_intent(words)
         return max(self.intents, key=lambda x: x[1])
 
     def is_flip_table_intent(self, words):
@@ -69,6 +70,11 @@ class IntentProposer(Proposer):
     def is_update_profile_intent(self, words):
         self.intents.append(
             (Intent.UpdateProfileIntent, self.count_keywords(IS_UPDATE_PROFILE_INTENT, words) / float(len(words)))
+        )
+
+    def is_champion_information_intent(self, words):
+        self.intents.append(
+            (Intent.ChampionInformationIntent, self.count_keywords(IS_CHAMPION_INFORMATION_INTENT, words) * 4 / float(len(words)))
         )
 
     def is_identify_player_intent(self, words):
