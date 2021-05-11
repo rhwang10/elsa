@@ -75,6 +75,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    if search("yoe", message.content.lower()) or search("tc", message.content.lower()):
+        await _type(message.channel, "Roob pays for my server costs. If you want joob TC in tech, go here https://www.levels.fyi/")
+
     if search("sister", message.content.lower()):
         await _type(message.channel, "Anna is my sister! Thanks for asking! https://www.youtube.com/watch?v=TeQ_TTyLGMs&ab_channel=DisneyMusicVEVO")
 
