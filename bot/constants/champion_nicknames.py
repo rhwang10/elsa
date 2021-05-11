@@ -9,6 +9,8 @@ KHAZIX = [
 
 POPPY = [
     "big chick",
+    "big",
+    "chick",
     "weeb",
     "hammer"
 ]
