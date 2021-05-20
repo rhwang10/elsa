@@ -30,7 +30,6 @@ champion_service = ChampionService()
 question_service = QuestionService()
 
 message_events_sqs_client = SQSClient("ELSA_EMOJI_MESSAGE_EVENTS_QUEUE_URL")
-# message_events_dynamo_client = DynamoClient("ELSA_MESSAGE_EVENTS_TABLE_NAME")
 
 FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
 UNFLIPPING_CHOICES = ["┬─┬ノ( ◕◡◕ ノ)", "┳━┳ ヽ(ಠل͜ಠ)ﾉ", "┏━┓┏━┓┏━┓ ︵ /(^.^/)", "┬─┬ノ( ಠ_ಠノ)", "(ヘ･_･)ヘ ┳━┳", "┳━┳ノ( OωOノ )", "┬──┬  ¯\_(ツ)", "┣ﾍ(^▽^ﾍ)Ξ(ﾟ▽ﾟ*)ﾉ┳━┳", "┬───┬ ノ༼ຈ ل͜ຈノ༽", "┬──┬  ノ( ゜-゜ノ)", "┏━┓ ︵ /(^.^/)"]
