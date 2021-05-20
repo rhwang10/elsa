@@ -3,6 +3,7 @@ import threading
 import os
 import asyncio
 import random
+import re
 
 from re import search
 from flask import Flask, request, jsonify
@@ -28,7 +29,7 @@ player_service = PlayerService()
 champion_service = ChampionService()
 question_service = QuestionService()
 
-# message_events_sqs_client = SQSClient("ELSA_MESSAGE_EVENTS_QUEUE_URL")
+message_events_sqs_client = SQSClient("ELSA_EMOJI_MESSAGE_EVENTS_QUEUE_URL")
 # message_events_dynamo_client = DynamoClient("ELSA_MESSAGE_EVENTS_TABLE_NAME")
 
 FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
@@ -75,27 +76,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if not (search("elsa", message.content.lower())) \
-    and not (search("┻━┻", message.content)) \
-    and not (search("┳━┳", message.content)) \
-    and not search("┏━┓", message.content):
+    persist_emojis(message)
 
-        msg = {
-            "authorId": message.author.id,
-            "authorName": message.author.name,
-            "messageId": message.id,
-            "timestamp": message.created_at.isoformat(),
-            "message": message.content
-        }
-
-        # Sends message to message events FIFO queue
-        # Consumer will persist the message to DynamoDB message-events table
-        if message.content:
-            print("Writes to SQS disabled until I can migrate logic off the consumer onto the app")
-            # print("Writing message to SQS")
-            # message_events_sqs_client.send_fifo_message(msg, "message_event")
-
-        return
+    return
 
     # proposrs are stateful, we need to make new ones on each run
     # todo: make proposers stateless
@@ -182,6 +165,37 @@ async def route_intent(message, intent):
     if intent == Intent.UnknownIntent:
         print("Unknown Intent")
         # await _type(channel, "Unknown intent")
+
+def persist_emojis(msg):
+
+    pattern = re.compile("(?<=\<)(.*?)(?=\>)")
+    matched = pattern.findall(msg.content)
+
+    # If no emojis, return
+    if not matched:
+        return
+
+    # emoji is formatted like :peepoNotes:841521842316771358
+    for e in matched:
+
+        if e.startswith(":"):
+            emoji_name, emoji_id = e[1:].split(":")
+
+            sqs_msg = {
+                "authorId": msg.author.id,
+                "authorName": msg.author.name,
+                "emojiId": emoji_id,
+                "emojiName": emoji_name,
+                "timestamp": msg.created_at.isoformat(),
+                "channel": msg.channel.name,
+                "voiceChannel": msg.author.voice.channel.name if msg.author.voice else ""
+            }
+
+            # Sends message to emoji message events queue
+            # Consumer will persist the message to DynamoDB elsa-emoji-events table
+            print("Writing message to SQS")
+            message_events_sqs_client.send_message(sqs_msg)
+
 
 async def _type(channel, msg):
     await channel.trigger_typing()
