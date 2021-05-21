@@ -75,7 +75,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    persist_emojis(message)
+    if message.author.name != "Rythm":
+        persist_emojis(message)
 
     return
 
