@@ -8,6 +8,7 @@ import sched
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from re import search
 from flask import Flask, request, jsonify
@@ -28,7 +29,8 @@ from flask import Flask, request, jsonify
 
 # MAX_WORKERS = 3
 client = discord.Client(intents=discord.Intents.all())
-scheduler = BackgroundScheduler()
+GENERAL_TEXT_CHANNEL = client.get_channel(316021605555896332)
+scheduler = AsyncIOScheduler()
 
 MEMBERS_WHO_CAN_STREAM=['Biiig Chiiiick', 'ScholarOfTheFirstMeme', 'Scrub', 'ItsMike', 'jook']
 GAME = 'League of Legends'
@@ -43,37 +45,25 @@ RESUME_MESSAEGS = ["resume", "start"]
 
 # FLIPPING_CHOICES = ["(╯°Д°)╯︵/(.□ . \)", "ヽ(ຈل͜ຈ)ﾉ︵ ┻━┻", "(☞ﾟヮﾟ)☞ ┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "(┛ಠ_ಠ)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┻━┻︵ \(°□°)/ ︵ ┻━┻", "ʕノ•ᴥ•ʔノ ︵ ┻━┻", "(┛❍ᴥ❍﻿)┛彡┻━┻", "(╯°□°)╯︵ ┻━┻ ︵ ╯(°□° ╯)", "(ﾉ＾◡＾)ﾉ︵ ┻━┻"]
 # UNFLIPPING_CHOICES = ["┬─┬ノ( ◕◡◕ ノ)", "┳━┳ ヽ(ಠل͜ಠ)ﾉ", "┏━┓┏━┓┏━┓ ︵ /(^.^/)", "┬─┬ノ( ಠ_ಠノ)", "(ヘ･_･)ヘ ┳━┳", "┳━┳ノ( OωOノ )", "┬──┬  ¯\_(ツ)", "┣ﾍ(^▽^ﾍ)Ξ(ﾟ▽ﾟ*)ﾉ┳━┳", "┬───┬ ノ༼ຈ ل͜ຈノ༽", "┬──┬  ノ( ゜-゜ノ)", "┏━┓ ︵ /(^.^/)"]
-def check():
+async def check():
     print("Running check!")
     for channel in client.get_all_channels():
 
-        # If 1) User is Gaming
-        # 2) User is in a Voice Channel
-        # 3) Number of members in the channel is greater than 1
-        # 4) Member is part of someone who can stream
-        # 5) Member is not currently streaming
-        if isinstance(channel, discord.VoiceChannel):
+        if not isinstance(channel, discord.VoiceChannel):
+            continue
 
-            members = channel.members
-            members_streaming_currently = [m for m in members if m.voice.self_stream]
-
-            for member in members:
-                if member.name in MEMBERS_WHO_CAN_STREAM and \
-                not member.voice.self_stream and \
-                discord.ActivityType.playing in list(member.activities) and \
-                member.activity.name == GAME and \
-                len(members) > 1 and \
-                len(members_streaming_currently) == 0:
-                    await _type(channel, f"<{member.mention}> <:strim:921622886010195988>")
+        members = channel.members
+        for member in members:
+            if await should_ping(member, channel):
+                await _type(GENERAL_TEXT_CHANNEL, f"{member.mention} <:strim:921622886010195988> pls")
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
 # Client.guilds and co. are filled up.
 @client.event
 async def on_ready():
-    x = lambda: print("hello")
     # start a thread to poll members that are currently gaming
-    scheduler.add_job(check, "cron", second="*/10")
+    scheduler.add_job(check, "cron", second="*/30")
     scheduler.start()
 
     print("Scheduler started successfully")
@@ -86,37 +76,52 @@ async def on_ready():
 @client.event
 async def on_disconnect():
     scheduler.shutdown()
-    print("Logged out")
+    print("Scheduler shut down successfully")
+
+async def should_ping(member, channel):
+
+    if not isinstance(channel, discord.VoiceChannel):
+        return
+
+    members = channel.members
+    members_streaming = [m for m in members if m.voice.self_stream]
+
+    """
+     2) This member is in the channel
+     3) This member is eligible to stream
+     4) This member is not streaming currently
+     5) This member is currently playing a game
+     6) This game is League
+     7) The number of members in the channel is greater than one
+     8) There is no one streaming currently in the channel
+    """
+
+    decision =  member in channel.members                            and \
+            member.name in MEMBERS_WHO_CAN_STREAM                    and \
+            not member.voice.self_stream                             and \
+            discord.ActivityType.playing in list(member.activities)  and \
+            member.activity.name == GAME                             and \
+            len(members) > 1                                         and \
+            len(members_streaming) == 0
+
+    print(f"for {member.name} the decision is {decision}")
+    return decision
 
 # Called when a member updates their profile
 # This is called when one or more of the following things change
 # status, activity, nickname, roles, pending
+
 @client.event
 async def on_member_update(previous_member_state, current_member_state):
 
-    if isinstance(current_member_state.activity, discord.Game):
-        print("someone just started gaming")
-
-    for channel in client.get_all_channels():
-
-        # If 1) User is Gaming
-        # 2) User is in a Voice Channel
-        # 3) Number of members in the channel is greater than 1
-        # 4) Member is part of someone who can stream
-        # 5) Member is not currently streaming
-        if isinstance(channel, discord.VoiceChannel) and \
-        current_member_state in channel.members and \
-        current_member_state.name in MEMBERS_WHO_CAN_STREAM and \
-        not current_member_state.self_stream and \
-        len(channel.members) > 1:
-            print(current_member_state.name)
-    try:
-        activity_type = after.activity.type
-    except:
+    # If a league  game has not started, return
+    if not isinstance(current_member_state.activity, discord.ActivityType.playing) or \
+           current_member_state.activity.name == GAME:
         return
 
-    if activity_type is discord.ActivityType.streaming:
-        print("Someone is streaming?")
+    for channel in client.get_all_channels():
+        if await should_ping(current_member_state, channel):
+            await _type(GENERAL_TEXT_CHANNEL, f"{member.mention} <:strim:921622886010195988> pls")
 
 @client.event
 async def on_message(message):
