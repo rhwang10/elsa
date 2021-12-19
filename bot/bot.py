@@ -29,13 +29,12 @@ from flask import Flask, request, jsonify
 
 # MAX_WORKERS = 3
 client = discord.Client(intents=discord.Intents.all())
-GENERAL_TEXT_CHANNEL = client.get_channel(316021605555896332)
 scheduler = AsyncIOScheduler()
 
 MEMBERS_WHO_CAN_STREAM=['Biiig Chiiiick', 'ScholarOfTheFirstMeme', 'Scrub', 'ItsMike', 'jook']
 GAME = 'League of Legends'
-STOP_MESSAGES = ["shut up", "stop", "pause"]
-RESUME_MESSAEGS = ["resume", "start"]
+STOP_MESSAGES = ["elsa shut up", "elsa stop", "elsa pause"]
+RESUME_MESSAEGS = ["elsa resume", "elsa start"]
 
 # player_service = PlayerService()
 # champion_service = ChampionService()
@@ -55,7 +54,8 @@ async def check():
         members = channel.members
         for member in members:
             if await should_ping(member, channel):
-                await _type(GENERAL_TEXT_CHANNEL, f"{member.mention} <:strim:921622886010195988> pls")
+                general_text_channel = client.get_channel(316021605555896332)
+                await _type(general_text_channel, f"{member.mention} <:strim:921622886010195988> pls (if u need this msg to stop because its broken, type 'elsa stop'. to restart it, type 'elsa resume')")
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -63,9 +63,8 @@ async def check():
 @client.event
 async def on_ready():
     # start a thread to poll members that are currently gaming
-    scheduler.add_job(check, "cron", second="*/30")
+    scheduler.add_job(check, "cron", second="*/2")
     scheduler.start()
-
     print("Scheduler started successfully")
 
 # Called when the client has disconnected from Discord.
@@ -96,15 +95,14 @@ async def should_ping(member, channel):
      8) There is no one streaming currently in the channel
     """
 
-    decision =  member in channel.members                            and \
-            member.name in MEMBERS_WHO_CAN_STREAM                    and \
-            not member.voice.self_stream                             and \
-            discord.ActivityType.playing in list(member.activities)  and \
-            member.activity.name == GAME                             and \
-            len(members) > 1                                         and \
+    decision =  member in channel.members                                               and \
+            member.name in MEMBERS_WHO_CAN_STREAM                                       and \
+            not member.voice.self_stream                                                and \
+            (member.activity and member.activity.type == discord.ActivityType.playing)  and \
+            member.activity.name == GAME                                                and \
+            len(members) > 1                                                            and \
             len(members_streaming) == 0
 
-    print(f"for {member.name} the decision is {decision}")
     return decision
 
 # Called when a member updates their profile
@@ -114,9 +112,9 @@ async def should_ping(member, channel):
 @client.event
 async def on_member_update(previous_member_state, current_member_state):
 
-    # If a league  game has not started, return
-    if not isinstance(current_member_state.activity, discord.ActivityType.playing) or \
-           current_member_state.activity.name == GAME:
+    # If a league game has not started, return
+    if current_member_state.activity.type != discord.ActivityType.playing or \
+           current_member_state.activity.name != GAME:
         return
 
     for channel in client.get_all_channels():
