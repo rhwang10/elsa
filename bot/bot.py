@@ -63,7 +63,7 @@ async def check():
 @client.event
 async def on_ready():
     # start a thread to poll members that are currently gaming
-    scheduler.add_job(check, "cron", second="*/2")
+    scheduler.add_job(check, "cron", second="*/30")
     scheduler.start()
     print("Scheduler started successfully")
 
