@@ -106,7 +106,11 @@ async def should_ping(member, channel):
             len(members) > 1                                                            and \
             len(members_streaming) == 0
 
-    decision_with_user_not_opted_in = (member.name in MEMBERS_WHO_CAN_STREAM and decision is None) or decision
+    decision_with_user_not_opted_in = (member.name in MEMBERS_WHO_CAN_STREAM and \
+                                       decision is None                      and \
+                                       len(members_streaming) == 0) \
+                                       or \
+                                       decision
 
     print(f"Decision for {member.name} is {decision_with_user_not_opted_in}")
     return decision_with_user_not_opted_in
