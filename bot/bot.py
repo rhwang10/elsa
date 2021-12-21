@@ -63,7 +63,7 @@ async def check():
 @client.event
 async def on_ready():
     # start a thread to poll members that are currently gaming
-    scheduler.add_job(check, "cron", second="*/40")
+    scheduler.add_job(check, "cron", second="*/2")
     scheduler.start()
     print("Scheduler started successfully")
 
@@ -103,6 +103,7 @@ async def should_ping(member, channel):
             len(members) > 1                                                            and \
             len(members_streaming) == 0
 
+    print(f"Decision for {member.name} is {decision}")
     return decision
 
 # Called when a member updates their profile
@@ -119,7 +120,8 @@ async def on_member_update(previous_member_state, current_member_state):
 
     for channel in client.get_all_channels():
         if await should_ping(current_member_state, channel):
-            await _type(GENERAL_TEXT_CHANNEL, f"{member.mention} <:strim:921622886010195988> pls")
+            general_text_channel = client.get_channel(316021605555896332)
+            await _type(general_text_channel, f"{member.mention} <:strim:921622886010195988> pls")
 
 @client.event
 async def on_message(message):
@@ -143,9 +145,11 @@ async def on_message(message):
         await _type(message.channel, "<:strim:921622886010195988>")
 
     if any(x in message.content for x in STOP_MESSAGES):
+        print("Pausing")
         scheduler.pause()
 
     if any(x in message.content for x in RESUME_MESSAEGS):
+        print("Resuming")
         scheduler.resume()
 
 # @client.event
