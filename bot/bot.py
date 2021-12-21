@@ -6,6 +6,7 @@ import random
 import re
 import sched
 import time
+import random
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -55,7 +56,9 @@ async def check():
         for member in members:
             if await should_ping(member, channel):
                 general_text_channel = client.get_channel(316021605555896332)
-                await _type(general_text_channel, f"{member.mention} <:strim:921622886010195988> pls (if u need this msg to stop because its broken, type 'elsa stop'. to restart it, type 'elsa resume')")
+                r = random.randint(1, 13)
+                response = ' '.join(["<:strim:921622886010195988>" for _ in range(r)])
+                await _type(general_text_channel, f"{member.mention} {response} pls (if u need this msg to stop because its broken, type 'elsa stop'. to restart it, type 'elsa resume')")
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -63,7 +66,7 @@ async def check():
 @client.event
 async def on_ready():
     # start a thread to poll members that are currently gaming
-    scheduler.add_job(check, "cron", second="*/2")
+    scheduler.add_job(check, "cron", second="*/30")
     scheduler.start()
     print("Scheduler started successfully")
 
@@ -97,14 +100,16 @@ async def should_ping(member, channel):
 
     decision =  member in channel.members                                               and \
             member.name in MEMBERS_WHO_CAN_STREAM                                       and \
-            not member.voice.self_stream                                                and \
+            (not member.voice.self_stream)                                              and \
             (member.activity and member.activity.type == discord.ActivityType.playing)  and \
             member.activity.name == GAME                                                and \
             len(members) > 1                                                            and \
             len(members_streaming) == 0
 
-    print(f"Decision for {member.name} is {decision}")
-    return decision
+    decision_with_user_not_opted_in = (member.name in MEMBERS_WHO_CAN_STREAM and decision is None) or decision
+
+    print(f"Decision for {member.name} is {decision_with_user_not_opted_in}")
+    return decision_with_user_not_opted_in
 
 # Called when a member updates their profile
 # This is called when one or more of the following things change
@@ -114,14 +119,16 @@ async def should_ping(member, channel):
 async def on_member_update(previous_member_state, current_member_state):
 
     # If a league game has not started, return
-    if current_member_state.activity.type != discord.ActivityType.playing or \
-           current_member_state.activity.name != GAME:
+    if current_member_state.activity and (current_member_state.activity.type != discord.ActivityType.playing or \
+           current_member_state.activity.name != GAME):
         return
 
     for channel in client.get_all_channels():
         if await should_ping(current_member_state, channel):
             general_text_channel = client.get_channel(316021605555896332)
-            await _type(general_text_channel, f"{member.mention} <:strim:921622886010195988> pls")
+            r = random.randint(1, 13)
+            response = ' '.join(["<:strim:921622886010195988>" for _ in range(r)])
+            await _type(general_text_channel, f"{member.mention} {response} pls")
 
 @client.event
 async def on_message(message):
@@ -141,8 +148,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content == "<:strim:921622886010195988>":
-        await _type(message.channel, "<:strim:921622886010195988>")
+    if "<:strim:921622886010195988>" in message.content:
+        r = random.randint(1, 13)
+        response = ' '.join(["<:strim:921622886010195988>" for _ in range(r)])
+        await _type(message.channel, response)
 
     if any(x in message.content for x in STOP_MESSAGES):
         print("Pausing")
