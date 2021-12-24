@@ -4,3 +4,5 @@ flask
 boto3
 asyncio
 apscheduler
+requests
+psycopg2-binary
