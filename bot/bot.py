@@ -68,13 +68,17 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    target_user = message.author
-
+    target_user = message.author.name.split("#")[0]
+    print(f"Checking for a message for {target_user}")
     with PostgresConnection() as conn, conn.cursor() as cur:
         cur.execute("SELECT id FROM users WHERE name = %s", (target_user,))
-        target_user_id = cur.fetchone()
+        target_user_id = cur.fetchone()[0]
 
-    msg = requests.get(USER_MSG_ENDPOINT + target_user_id)
+    res = requests.get(USER_MSG_ENDPOINT + str(target_user_id))
+    data = res.json()
+
+    if data:
+        await _type(message.channel, data['message'])
 
 
 
