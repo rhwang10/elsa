@@ -5,3 +5,14 @@ Elsa is HTV's Discord bot. It talks to `iduna`, which is an API that exposes a r
 ![plot](./elsa-larger.png)
 
 # Setup
+Before running:
+1) Set up `iduna` API to run locally
+2) Set up a local postgres and initialize it with the sql script found in `iduna` repository
+3) Set up a local Redis server
+4) [Optional] Set up `marshmallow-ui` frontend app
+
+Just run the script `setup.sh` to initialize env variables once the setup is complete
+
+```
+$ source ./setup.sh
+```
