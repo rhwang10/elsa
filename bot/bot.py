@@ -68,6 +68,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    print(message.content)
+
     print(f"Checking for a message for {message.author.name}")
     discord_tag = f"{message.author.name}#{message.author.discriminator}"
     with PostgresConnection() as conn, conn.cursor() as cur:
