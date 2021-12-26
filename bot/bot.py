@@ -68,12 +68,12 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    target_user = message.author.name.split("#")[0]
-    print(f"Checking for a message for {target_user}")
+    print(f"Checking for a message for {message.author.name}")
+    discord_tag = f"{message.author.name}#{message.author.discriminator}"
     with PostgresConnection() as conn, conn.cursor() as cur:
-        cur.execute("SELECT id FROM users WHERE name = %s", (target_user,))
+        cur.execute("SELECT id FROM users WHERE display_name = %s", (discord_tag,))
         target_user_id = cur.fetchone()[0]
-
+    print(target_user_id)
     res = requests.get(USER_MSG_ENDPOINT + str(target_user_id))
     data = res.json()
 
