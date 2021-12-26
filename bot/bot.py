@@ -73,7 +73,6 @@ async def on_message(message):
     with PostgresConnection() as conn, conn.cursor() as cur:
         cur.execute("SELECT id FROM users WHERE display_name = %s", (discord_tag,))
         target_user_id = cur.fetchone()[0]
-    print(target_user_id)
     res = requests.get(USER_MSG_ENDPOINT + str(target_user_id))
     data = res.json()
 
