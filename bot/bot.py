@@ -6,10 +6,48 @@ import requests
 import psycopg2
 import urllib.parse as urlparse
 
+from discord import FFmpegPCMAudio
+from youtube_dl import YoutubeDL
+
+from discord.ext import commands
+
 CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
 
-client = discord.Client(intents=discord.Intents.all())
+client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
+
+@client.command()
+async def play(ctx, url):
+
+    if not ctx.author.voice or not ctx.author.voice.channel:
+        return
+
+    channel = ctx.author.voice.channel
+
+    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
+    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+
+    voice = await channel.connect()
+
+    if not voice.is_playing():
+        with YoutubeDL(YDL_OPTIONS) as ydl:
+            info = ydl.extract_info(url, download=False)
+
+        URL = info['formats'][0]['url']
+        print(URL)
+        voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        voice.is_playing()
+    else:
+        await ctx.send("I'm already playing a song!")
+        return
+
+@client.command()
+async def kick(ctx):
+
+    if not ctx.author.voice or not ctx.author.voice.channel:
+        return
+
+    await ctx.voice_client.disconnect()
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the
@@ -52,6 +90,8 @@ async def on_message(message):
 
     if message_response:
         await _type(message.channel, message_response['message'])
+
+    await client.process_commands(message)
 
 async def _type(channel, msg):
     await channel.trigger_typing()
