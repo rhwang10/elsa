@@ -16,3 +16,11 @@ Just run the script `setup.sh` to initialize env variables once the setup is com
 ```
 $ source ./setup.sh
 ```
+
+# Buildpacks (If deploying on Heroku)
+Elsa requires the ffmpeg and heroku-opus buildpacks to run on Heroku.
+
+```
+heroku buildpacks:add https://github.com/xrisk/heroku-opus.git
+heroku buildpacks:add https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
+```
