@@ -27,16 +27,20 @@ async def play(ctx, url):
     YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
-    voice = await channel.connect()
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
 
-    if not voice.is_playing():
+    if voice == None:
+        vc = await channel.connect()
+    else:
+        vc = voice
+
+    if not vc.is_playing():
         with YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(url, download=False)
 
         URL = info['formats'][0]['url']
-        print(URL)
-        voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-        voice.is_playing()
+        vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        vc.is_playing()
     else:
         await ctx.send("I'm already playing a song!")
         return
