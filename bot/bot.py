@@ -11,10 +11,14 @@ from youtube_dl import YoutubeDL
 
 from discord.ext import commands
 
+from bot.cache.yt_cache import YTCache
+
 CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
 
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
+
+yt_metadata = YTCache()
 
 @client.command()
 async def play(ctx, url):
@@ -36,7 +40,15 @@ async def play(ctx, url):
 
     if not vc.is_playing():
         with YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(url, download=False)
+            hashed_url = YTCache.hash(url)
+
+            try:
+                info = yt_metadata[hashed_url]
+                print(f"Cache hit! Fetching {url} from cache")
+            except KeyError as e:
+                print(f"Cache miss..")
+                info = ydl.extract_info(url, download=False)
+                yt_metadata[hashed_url] = info
 
         URL = info['formats'][0]['url']
         vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
