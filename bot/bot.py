@@ -6,36 +6,8 @@ import requests
 import psycopg2
 import urllib.parse as urlparse
 
+CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
-
-url = urlparse.urlparse(os.environ['DATABASE_URL'])
-dbname = url.path[1:]
-user = url.username
-password = url.password
-host = url.hostname
-port = url.port
-
-class PostgresConnection:
-
-    def __enter__(self):
-        try:
-            self.conn = psycopg2.connect(
-                        dbname=dbname,
-                        user=user,
-                        password=password,
-                        host=host,
-                        port=port)
-            return self.conn
-        except psycopg2.OperationalError:
-            pass
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        try:
-            self.conn.commit()
-            self.conn.close()
-        except Exception as e:
-            self.conn.rollback()
-            self.conn.close()
 
 client = discord.Client(intents=discord.Intents.all())
 
@@ -68,24 +40,30 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    print(message.content)
+    params = {
+        'name': message.author.name,
+        'id': message.author.discriminator
+    }
 
-    print(f"Checking for a message for {message.author.name}")
-    discord_tag = f"{message.author.name}#{message.author.discriminator}"
-    with PostgresConnection() as conn, conn.cursor() as cur:
-        cur.execute("SELECT id FROM users WHERE display_name = %s", (discord_tag,))
-        target_user_id = cur.fetchone()[0]
-    res = requests.get(USER_MSG_ENDPOINT + str(target_user_id))
-    data = res.json()
+    user_response = get(CACHED_USER_ENDPOINT, params=params)
 
-    if data:
-        await _type(message.channel, data['message'])
+    target_user_id = user_response["id"]
+    message_response = get(USER_MSG_ENDPOINT + str(target_user_id))
 
-
+    if message_response:
+        await _type(message.channel, message_response['message'])
 
 async def _type(channel, msg):
     await channel.trigger_typing()
     await asyncio.sleep(2)
     await channel.send(msg)
+
+def get(req, params=None):
+    try:
+        resp = requests.get(req, params=params)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.exceptions.HTTPError as err:
+        print(err)
 
 client.run(os.environ.get("BOT_TOKEN"))
