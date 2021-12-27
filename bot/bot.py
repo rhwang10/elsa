@@ -101,6 +101,10 @@ async def on_message(message):
 
     user_response = get(CACHED_USER_ENDPOINT, params=params)
 
+    if not user_response:
+        print("No user found, exiting gracefully")
+        return
+
     target_user_id = user_response["id"]
     message_response = get(USER_MSG_ENDPOINT + str(target_user_id))
 
@@ -121,5 +125,6 @@ def get(req, params=None):
         return resp.json()
     except requests.exceptions.HTTPError as err:
         print(err)
+        return None
 
 client.run(os.environ.get("BOT_TOKEN"))
