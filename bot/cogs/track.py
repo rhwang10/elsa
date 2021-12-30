@@ -56,7 +56,6 @@ class Music(commands.Cog):
             )
 
     @commands.command(name='leave')
-    @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
         if not ctx.voice_context.voice:
             return await ctx.send("Not connected to any channel")
@@ -65,14 +64,12 @@ class Music(commands.Cog):
         del self.voice_contexts[ctx.guild.id]
 
     @commands.command(name='pause')
-    @commands.has_permissions(manage_guild=True)
     async def _pause(self, ctx: commands.Context):
         if ctx.voice_context.is_playing and ctx.voice_context.voice.is_playing():
             ctx.voice_context.voice.pause()
             return await ctx.send("Paused!")
 
     @commands.command(name='resume')
-    @commands.has_permissions(manage_guild=True)
     async def _resume(self, ctx: commands.Context):
         if ctx.voice_context.is_playing and ctx.voice_context.voice.is_paused():
             ctx.voice_context.voice.resume()
