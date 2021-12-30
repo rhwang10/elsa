@@ -3,15 +3,11 @@ import os
 import asyncio
 import time
 import requests
-import psycopg2
-import urllib.parse as urlparse
 
 from discord import FFmpegPCMAudio
 from youtube_dl import YoutubeDL
 
 from discord.ext import commands
-
-from bot.cache.yt_cache import YTCache
 
 from bot.models.track import AsyncAudioSource
 from bot.cogs.track import Music
@@ -19,61 +15,14 @@ from bot.cogs.track import Music
 CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
 
+from bot.util.log import setup_logging_queue
+
+setup_logging_queue()
+
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 
 # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
 client.add_cog(Music(client))
-
-yt_metadata = YTCache()
-
-# @client.command()
-# async def play(ctx, url):
-#
-#     if not ctx.author.voice or not ctx.author.voice.channel:
-#         return
-#
-#     channel = ctx.author.voice.channel
-#
-#     YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-#     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-#
-#     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-#
-#     audio_source = await AsyncAudioSource.create(url)
-#
-#
-#
-#     if voice == None:
-#         vc = await channel.connect()
-#     else:
-#         vc = voice
-#
-#     if not vc.is_playing():
-#         with YoutubeDL(YDL_OPTIONS) as ydl:
-#             hashed_url = YTCache.hash(url)
-#
-#             try:
-#                 info = yt_metadata[hashed_url]
-#                 print(f"Cache hit! Fetching {url} from cache")
-#             except KeyError as e:
-#                 print(f"Cache miss..")
-#                 info = ydl.extract_info(url, download=False)
-#                 yt_metadata[hashed_url] = info
-#
-#         URL = info['formats'][0]['url']
-#         vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-#         vc.is_playing()
-#     else:
-#         await ctx.send("I'm already playing a song!")
-#         return
-#
-# @client.command()
-# async def kick(ctx):
-#
-#     if not ctx.author.voice or not ctx.author.voice.channel:
-#         return
-#
-#     await ctx.voice_client.disconnect()
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the

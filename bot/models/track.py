@@ -3,8 +3,14 @@ import functools
 import youtube_dl
 import asyncio
 import concurrent.futures
+import logging
 
+from cachetools import TTLCache
 from discord.ext import commands
+
+from bot.util.log import setup_logging_queue
+
+LOG = logging.getLogger('simple')
 
 class AsyncAudioSource(discord.PCMVolumeTransformer):
 
@@ -33,23 +39,30 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=6)
 
     def __init__(self,
-                 source: discord.FFmpegPCMAudio, *,
+                 source: discord.FFmpegPCMAudio,
                  data: dict,
                  volume: float = 0.5):
         super().__init__(source, volume)
         self.data = data
+        self.title = data['title']
+        self.description = data['description']
         self.is_downloaded = True
 
     @classmethod
-    async def create(cls, url: str):
-        loop = asyncio.get_event_loop()
-        dl_future = functools.partial(cls.yt.extract_info, url, download=False, process=False)
+    async def create(cls, url: str, cache: TTLCache):
+        try:
+            metadata = cache[url]
+        except KeyError as e:
+            LOG.info(f"Cache miss for URL: {url}, fetching from ytdl")
+            loop = asyncio.get_event_loop()
+            dl_future = functools.partial(cls.yt.extract_info, url, download=False, process=False)
 
-        # Run in a custom thread pool
-        # https://www.integralist.co.uk/posts/python-asyncio/#introduction
-        metadata = await loop.run_in_executor(cls.executor, dl_future)
+            # Run in a custom thread pool
+            # https://www.integralist.co.uk/posts/python-asyncio/#introduction
+            metadata = await loop.run_in_executor(cls.executor, dl_future)
+            cache[url] = metadata
 
-        print("Fetched metadata: ", metadata['formats'][0]['url'])
+        LOG.info(f"Fetched URL: {metadata['formats'][0]['url']}")
 
         return cls(discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata)
 

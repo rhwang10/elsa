@@ -1,13 +1,18 @@
 import asyncio
+
 from discord.ext import commands
+from cachetools import TTLCache
+from datetime import datetime, timedelta
 
 from bot.models.track import AsyncAudioSource, Track
 from bot.models.voice_context import VoiceContext
 
 class Music(commands.Cog):
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voice_contexts = {}
+        self.metadata_cache = TTLCache(100, timedelta(hours=12), timer=datetime.now)
 
     def get_voice_context(self, ctx: commands.Context):
         voice_context = self.voice_contexts.get(ctx.guild.id)
@@ -44,7 +49,7 @@ class Music(commands.Cog):
             await ctx.invoke(self._join)
 
         try:
-            source = await AsyncAudioSource.create(url)
+            source = await AsyncAudioSource.create(url, self.metadata_cache)
         except Exception as e:
             print("Error creating audio source", e)
         else:
@@ -52,7 +57,7 @@ class Music(commands.Cog):
 
             await ctx.voice_context.tracks.put(track)
             await ctx.send(
-                f"Enqueued {source}"
+                f"Queued up {track.source.title}!"
             )
 
     @commands.command(name='leave')

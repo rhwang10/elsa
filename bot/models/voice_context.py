@@ -1,10 +1,11 @@
 import asyncio
+import logging
 
 from async_timeout import timeout
-
 from discord.ext import commands
-
 from bot.models.queue import TrackQueue
+
+LOG = logging.getLogger('simple')
 
 class VoiceContext:
 
@@ -29,6 +30,7 @@ class VoiceContext:
         return self.voice and self.current_track
 
     async def play_audio(self):
+        LOG.info("Initializing audio loop")
         while True:
             self.next_track.clear()
 
@@ -36,17 +38,19 @@ class VoiceContext:
                 async with timeout(900): # If nothing new in 15 minutes, quit
                     self.current_track = await self.tracks.get()
             except asyncio.TimeoutError:
+                LOG.info("Loop timed out, exiting")
                 self.bot.loop.create_task(self.stop())
                 return
 
+            LOG.info(f"Pulled in new track! {self.current_track.source.title}")
             self.current_track.source.volume = self._volume
             self.voice.play(self.current_track.source, after=self.play_next)
             await self.next_track.wait()
 
     def play_next(self, error=None):
         if error:
-            print("Something went wrong in play next")
-            raise Exception(str(error))
+            LOG.error(f"Something went wrong in play next: {str(error)}")
+            raise
         self.next_track.set()
 
     def skip(self):
