@@ -42,7 +42,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
 
     @classmethod
     async def create(cls, url: str):
-        loop = asyncio.get_running_loop()
+        loop = asyncio.get_event_loop()
         dl_future = functools.partial(cls.yt.extract_info, url, download=False, process=False)
 
         # Run in a custom thread pool
