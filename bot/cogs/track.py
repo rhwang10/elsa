@@ -67,10 +67,11 @@ class Music(commands.Cog):
         else:
             track = Track(source)
 
+            # If queue contains items, send queued msg
+            if len(ctx.voice_context.tracks) > 0:
+                await ctx.send(f"Queued up {track.source.title} !")
+
             await ctx.voice_context.tracks.put(track)
-            await ctx.send(
-                f"Queued up {track.source.title}!"
-            )
 
     @commands.command(name='leave')
     async def _leave(self, ctx: commands.Context):
