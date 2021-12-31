@@ -11,6 +11,7 @@ from discord.ext import commands
 
 from bot.models.track import AsyncAudioSource
 from bot.cogs.track import Music
+from bot.cogs.latency import Latency
 
 CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
@@ -23,6 +24,7 @@ client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 
 # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
 client.add_cog(Music(client))
+client.add_cog(Latency(client))
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the

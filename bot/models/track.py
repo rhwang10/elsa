@@ -96,7 +96,8 @@ class Track:
                     color=color)
                 .add_field(name='Requested by', value=self.source.requested_by)
                 .add_field(name='Duration', value=self._convert_duration(self.source.duration))
-                .set_thumbnail(url=self.source.thumbnail))
+                .set_thumbnail(url=self.source.thumbnail)
+                .set_footer(text="this is a footer"))
 
         return embed
 
