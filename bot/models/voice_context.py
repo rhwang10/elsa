@@ -1,10 +1,10 @@
 import asyncio
 import logging
-import discord
 
 from async_timeout import timeout
 from discord.ext import commands
 from bot.models.queue import TrackQueue
+from bot.util.color import ICE_BLUE
 
 LOG = logging.getLogger('simple')
 
@@ -48,9 +48,12 @@ class VoiceContext:
             self.voice.play(self.current_track.source, after=self.play_next)
 
             # TODO: emit a play event here
-            
+
             await self.current_track.source.channel.send(
-                embed=self.current_track.embed(title='Now Playing!', color=discord.Color.blue())
+                embed=self.current_track.embed(
+                    title='Now Playing!',
+                    color=ICE_BLUE
+                )
             )
             await self.next_track.wait()
 

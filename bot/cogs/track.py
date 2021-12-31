@@ -1,5 +1,4 @@
 import asyncio
-import discord
 import logging
 
 from discord.ext import commands
@@ -10,6 +9,7 @@ from bot.models.track import AsyncAudioSource, Track
 from bot.models.voice_context import VoiceContext
 from bot.exceptions.exceptions import YTDLException
 from bot.util.log import setup_logging_queue
+from bot.util.color import ICE_BLUE
 
 LOG = logging.getLogger('simple')
 
@@ -128,14 +128,15 @@ class Music(commands.Cog):
 
         if num is None:
             nxt = ctx.voice_context.tracks[0]
-            return await ctx.send(embed=nxt.embed(
-                title='Next up ~', color=discord.Color.blurple()))
+            return await ctx.send(embed=nxt.embed(title='Next up ~', color=ICE_BLUE))
 
         # Pull in the min(len(queue), num) and send each embed
         for idx in range(min(len(ctx.voice_context.tracks), num)):
             track = ctx.voice_context.tracks[idx]
             title = "Next up ~" if idx == 0 else f"Playing after {idx + 1} tracks"
-            await ctx.send(embed=track.embed(title=title, color=discord.Color.blurple()))
+            await ctx.send(embed=track.embed(
+                                title=title,
+                                color=ICE_BLUE))
 
     @commands.command(name='shuffle')
     async def _shuffle(self, ctx: commands.Context):
