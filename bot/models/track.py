@@ -47,12 +47,14 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
                  ctx : commands.Context,
                  source: discord.FFmpegPCMAudio,
                  data: dict,
+                 cached: bool,
                  volume: float = 0.5):
         super().__init__(source, volume)
         self.channel = ctx.channel
         self.requested_by = ctx.author
 
         self.data = data
+        self.cached = cached
         self.title = data['title']
         self.description = data['description']
         self.webpage_url = data['webpage_url']
@@ -65,6 +67,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         async with cls.cache_l:
             try:
                 metadata = cache[url]
+                cached = True
             except KeyError as e:
                 LOG.info(f"Cache miss for URL: {url}, fetching from ytdl")
                 loop = asyncio.get_event_loop()
@@ -74,6 +77,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
                 # https://www.integralist.co.uk/posts/python-asyncio/#introduction
                 metadata = await loop.run_in_executor(cls.executor, dl_future)
                 cache[url] = metadata
+                cached = False
 
         if metadata is None or 'formats' not in metadata or not metadata['formats']:
             raise YTDLException(f"Nothing found for url: {url}")
@@ -82,7 +86,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         sorted_formats = sorted(metadata['formats'], key=lambda x: x['quality'], reverse=True)
         LOG.info(f"Fetched URL: {sorted_formats[0]['url']}")
 
-        return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata)
+        return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata, cached=cached)
 
 class Track:
 
@@ -97,7 +101,7 @@ class Track:
                 .add_field(name='Requested by', value=self.source.requested_by)
                 .add_field(name='Duration', value=self._convert_duration(self.source.duration))
                 .set_thumbnail(url=self.source.thumbnail)
-                .set_footer(text="this is a footer"))
+                .set_footer(text=f'Fetched from cache: {self.source.cached}'))
 
         return embed
 

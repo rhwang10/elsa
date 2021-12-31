@@ -32,6 +32,11 @@ class Music(commands.Cog):
         for state in self.voice_contexts.values():
             self.bot.loop.create_task(state.stop())
 
+    def _is_queue_state_invalid(self, ctx: commands.Context):
+        return (not ctx.voice_context or
+                not ctx.voice_context.is_playing or
+                len(ctx.voice_context.tracks) == 0)
+
     async def cog_before_invoke(self, ctx: commands.Context):
         ctx.voice_context = self.get_voice_context(ctx)
 
@@ -68,7 +73,7 @@ class Music(commands.Cog):
             track = Track(source)
 
             # If queue contains items, send queued msg
-            if len(ctx.voice_context.tracks) > 0:
+            if ctx.voice_context.is_playing or len(ctx.voice_context.tracks) > 0:
                 await ctx.send(f"Queued up {track.source.title} !")
 
             await ctx.voice_context.tracks.put(track)
@@ -118,11 +123,13 @@ class Music(commands.Cog):
     @commands.command(name='peek', aliases=['next'])
     async def _peek(self, ctx: commands.Context, num: int = None):
 
-        if not ctx.voice_context.is_playing or len(ctx.voice_context.tracks) == 0:
+        if self._is_queue_state_invalid(ctx):
             return await ctx.send("No songs are queued!")
+
         if num is None:
             nxt = ctx.voice_context.tracks[0]
-            return await ctx.send(embed=nxt.embed(title='Next up ~', color=discord.Color.blurple()))
+            return await ctx.send(embed=nxt.embed(
+                title='Next up ~', color=discord.Color.blurple()))
 
         # Pull in the min(len(queue), num) and send each embed
         for idx in range(min(len(ctx.voice_context.tracks), num)):
@@ -130,6 +137,13 @@ class Music(commands.Cog):
             title = "Next up ~" if idx == 0 else f"Playing after {idx + 1} tracks"
             await ctx.send(embed=track.embed(title=title, color=discord.Color.blurple()))
 
+    @commands.command(name='shuffle')
+    async def _shuffle(self, ctx: commands.Context):
+        if self._is_queue_state_invalid(ctx):
+            return await ctx.send("No songs are queued to shuffle!")
+
+        ctx.voice_context.tracks.shuffle()
+        await ctx.send("Shuffled tracks in queue! Take a look with !peek {number}")
 
     @_join.before_invoke
     @_play.before_invoke
