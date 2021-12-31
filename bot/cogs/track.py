@@ -36,7 +36,7 @@ class Music(commands.Cog):
         ctx.voice_context = self.get_voice_context(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('An error occurred: {}'.format(str(error)))
+        await ctx.send(str(error))
 
     @commands.command(name='join', invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
@@ -50,6 +50,11 @@ class Music(commands.Cog):
 
     @commands.command(name='play')
     async def _play(self, ctx: commands.Context, *, url: str):
+
+        # This might happen if play is invoked from another coroutine
+        if not hasattr(ctx, "voice_context"):
+            ctx.voice_context = self.get_voice_context(ctx)
+
         if not ctx.voice_context.voice:
             await ctx.invoke(self._join)
 

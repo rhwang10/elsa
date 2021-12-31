@@ -47,43 +47,48 @@ async def on_disconnect():
 async def on_member_update(previous_member_state, current_member_state):
     pass
 
-# @client.event
-# async def on_message(message):
-#
-#     if message.author == client.user:
-#         return
-#
-#     params = {
-#         'name': message.author.name,
-#         'id': message.author.discriminator
-#     }
-#
-#     user_response = get(CACHED_USER_ENDPOINT, params=params)
-#
-#     if not user_response:
-#         print("No user found, exiting gracefully")
-#         return
-#
-#     target_user_id = user_response["id"]
-#     message_response = get(USER_MSG_ENDPOINT + str(target_user_id))
-#
-#     if message_response:
-#         await _type(message.channel, message_response['message'])
-#
-#     await client.process_commands(message)
-#
-# async def _type(channel, msg):
-#     await channel.trigger_typing()
-#     await asyncio.sleep(2)
-#     await channel.send(msg)
-#
-# def get(req, params=None):
-#     try:
-#         resp = requests.get(req, params=params)
-#         resp.raise_for_status()
-#         return resp.json()
-#     except requests.exceptions.HTTPError as err:
-#         print(err)
-#         return None
+@client.event
+async def on_message(message):
+
+    await client.process_commands(message)
+
+    if message.author == client.user or message.content.startswith("!"):
+        return
+
+    if "sing your favorite song" in message.content:
+        ctx = await client.get_context(message)
+        await ctx.send("🥰")
+        return await ctx.invoke(client.get_command('play'), url="https://www.youtube.com/watch?v=l1uoTMkhUiE")
+
+    params = {
+        'name': message.author.name,
+        'id': message.author.discriminator
+    }
+
+    user_response = get(CACHED_USER_ENDPOINT, params=params)
+
+    if not user_response:
+        print("No user found, exiting gracefully")
+        return
+
+    target_user_id = user_response["id"]
+    message_response = get(USER_MSG_ENDPOINT + str(target_user_id))
+
+    if message_response:
+        await _type(message.channel, message_response['message'])
+
+async def _type(channel, msg):
+    await channel.trigger_typing()
+    await asyncio.sleep(2)
+    await channel.send(msg)
+
+def get(req, params=None):
+    try:
+        resp = requests.get(req, params=params)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+        return None
 
 client.run(os.environ.get("BOT_TOKEN"))

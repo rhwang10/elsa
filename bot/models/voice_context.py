@@ -47,6 +47,8 @@ class VoiceContext:
             self.current_track.source.volume = self._volume
             self.voice.play(self.current_track.source, after=self.play_next)
 
+            # TODO: emit a play event here
+            
             await self.current_track.source.channel.send(
                 embed=self.current_track.embed(title='Now Playing!', color=discord.Color.blue())
             )
