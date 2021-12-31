@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import discord
 
 from async_timeout import timeout
 from discord.ext import commands
@@ -45,6 +46,10 @@ class VoiceContext:
             LOG.info(f"Pulled in new track! {self.current_track.source.title}")
             self.current_track.source.volume = self._volume
             self.voice.play(self.current_track.source, after=self.play_next)
+
+            await self.current_track.source.channel.send(
+                embed=self.current_track.embed(title='Now Playing!', color=discord.Color.blue())
+            )
             await self.next_track.wait()
 
     def play_next(self, error=None):

@@ -8,7 +8,10 @@ import logging
 from cachetools import TTLCache
 from discord.ext import commands
 
+
 from bot.util.log import setup_logging_queue
+
+from bot.exceptions.exceptions import YTDLException
 
 LOG = logging.getLogger('simple')
 
@@ -28,6 +31,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         'no_warnings': True,
         'default_search': 'auto',
         'source_address': '0.0.0.0',
+        'listformats': True
     }
 
     FFMPEG_OPTIONS = {
@@ -37,36 +41,79 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
 
     yt = youtube_dl.YoutubeDL(YTDL_OPTIONS)
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=6)
+    cache_l = asyncio.Lock()
 
     def __init__(self,
+                 ctx : commands.Context,
                  source: discord.FFmpegPCMAudio,
                  data: dict,
                  volume: float = 0.5):
         super().__init__(source, volume)
+        self.channel = ctx.channel
+        self.requested_by = ctx.author
+
         self.data = data
         self.title = data['title']
         self.description = data['description']
+        self.webpage_url = data['webpage_url']
+        self.duration = data['duration']
+        self.thumbnail = data['thumbnails'][-1]['url']
         self.is_downloaded = True
 
     @classmethod
-    async def create(cls, url: str, cache: TTLCache):
-        try:
-            metadata = cache[url]
-        except KeyError as e:
-            LOG.info(f"Cache miss for URL: {url}, fetching from ytdl")
-            loop = asyncio.get_event_loop()
-            dl_future = functools.partial(cls.yt.extract_info, url, download=False, process=False)
+    async def create(cls, ctx: commands.Context, url: str, cache: TTLCache):
+        async with cls.cache_l:
+            try:
+                metadata = cache[url]
+            except KeyError as e:
+                LOG.info(f"Cache miss for URL: {url}, fetching from ytdl")
+                loop = asyncio.get_event_loop()
+                dl_future = functools.partial(cls.yt.extract_info, url, download=False, process=False)
 
-            # Run in a custom thread pool
-            # https://www.integralist.co.uk/posts/python-asyncio/#introduction
-            metadata = await loop.run_in_executor(cls.executor, dl_future)
-            cache[url] = metadata
+                # Run in a custom thread pool
+                # https://www.integralist.co.uk/posts/python-asyncio/#introduction
+                metadata = await loop.run_in_executor(cls.executor, dl_future)
+                cache[url] = metadata
 
-        LOG.info(f"Fetched URL: {metadata['formats'][0]['url']}")
+        if metadata is None or 'formats' not in metadata or not metadata['formats']:
+            raise YTDLException(f"Nothing found for url: {url}")
 
-        return cls(discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata)
+        # pick the best audio quality, I'm guessing this is the quality flag?
+        sorted_formats = sorted(metadata['formats'], key=lambda x: x['quality'], reverse=True)
+        LOG.info(f"Fetched URL: {sorted_formats[0]['url']}")
+
+        return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata)
 
 class Track:
 
     def __init__(self, source: AsyncAudioSource):
         self.source = source
+
+    def embed(self, title: str, color: discord.Color):
+        embed = (discord.Embed(
+                    title=title,
+                    description='```css\n{0.source.title}\n```'.format(self), url=self.source.webpage_url,
+                    color=color)
+                .add_field(name='Requested by', value=self.source.requested_by)
+                .add_field(name='Duration', value=self._convert_duration(self.source.duration))
+                .set_thumbnail(url=self.source.thumbnail))
+
+        return embed
+
+    def _convert_duration(self, duration):
+        minutes, seconds = divmod(duration, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+
+        dur_str = []
+
+        if days > 0:
+            dur_str.append(f"{days} " + ("day" if days < 2 else "days"))
+        if hours > 0:
+            dur_str.append(f"{hours} " + ("hour" if hours < 2 else "hours"))
+        if minutes > 0:
+            dur_str.append(f"{minutes} " + ("minute" if minutes < 2 else "minutes"))
+        if seconds > 0:
+            dur_str.append(f"{seconds} " + ("second" if seconds < 2 else "seconds"))
+
+        return ', '.join(dur_str)

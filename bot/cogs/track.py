@@ -1,4 +1,6 @@
 import asyncio
+import discord
+import logging
 
 from discord.ext import commands
 from cachetools import TTLCache
@@ -6,6 +8,10 @@ from datetime import datetime, timedelta
 
 from bot.models.track import AsyncAudioSource, Track
 from bot.models.voice_context import VoiceContext
+from bot.exceptions.exceptions import YTDLException
+from bot.util.log import setup_logging_queue
+
+LOG = logging.getLogger('simple')
 
 class Music(commands.Cog):
 
@@ -32,7 +38,6 @@ class Music(commands.Cog):
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
         await ctx.send('An error occurred: {}'.format(str(error)))
 
-
     @commands.command(name='join', invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
         dest = ctx.author.voice.channel
@@ -49,9 +54,11 @@ class Music(commands.Cog):
             await ctx.invoke(self._join)
 
         try:
-            source = await AsyncAudioSource.create(url, self.metadata_cache)
+            source = await AsyncAudioSource.create(ctx, url, self.metadata_cache)
+        except YTDLException as e:
+            await ctx.send(f"Nothing found for url {url}...")
         except Exception as e:
-            print("Error creating audio source", e)
+            LOG.error(f"Error creating audio source: {e}")
         else:
             track = Track(source)
 
@@ -88,12 +95,35 @@ class Music(commands.Cog):
 
         ctx.voice_context.skip()
 
-    @commands.command(name='stop')
+    @commands.command(name='stop', aliases=['clear', 'quit'])
     async def _stop(self, ctx: commands.Context):
         ctx.voice_context.tracks.clear()
 
-        if not ctx.voice_context.is_playing:
+        if ctx.voice_context.is_playing:
             ctx.voice_context.voice.stop()
+
+    @commands.command(name='queue')
+    async def _queue(self, ctx: commands.Context):
+        if not ctx.voice_context:
+            return await ctx.send("I'm not currently active, why not change that with !play")
+        tracks = ctx.voice_context.tracks
+        return await ctx.send(f"{len(tracks)} tracks are queued")
+
+    @commands.command(name='peek', aliases=['next'])
+    async def _peek(self, ctx: commands.Context, num: int = None):
+
+        if not ctx.voice_context.is_playing or len(ctx.voice_context.tracks) == 0:
+            return await ctx.send("No songs are queued!")
+        if num is None:
+            nxt = ctx.voice_context.tracks[0]
+            return await ctx.send(embed=nxt.embed(title='Next up ~', color=discord.Color.blurple()))
+
+        # Pull in the min(len(queue), num) and send each embed
+        for idx in range(min(len(ctx.voice_context.tracks), num)):
+            track = ctx.voice_context.tracks[idx]
+            title = "Next up ~" if idx == 0 else f"Playing after {idx + 1} tracks"
+            await ctx.send(embed=track.embed(title=title, color=discord.Color.blurple()))
+
 
     @_join.before_invoke
     @_play.before_invoke
