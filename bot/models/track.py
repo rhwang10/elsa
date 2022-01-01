@@ -55,6 +55,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
 
         self.data = data
         self.cached = cached
+        self.id = data['id']
         self.title = data['title']
         self.description = data['description']
         self.webpage_url = data['webpage_url']

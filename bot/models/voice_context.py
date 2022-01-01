@@ -1,12 +1,19 @@
 import asyncio
 import logging
+import requests
+import os
+import json
+import functools
+from datetime import datetime
 
 from async_timeout import timeout
 from discord.ext import commands
 from bot.models.queue import TrackQueue
 from bot.util.color import ICE_BLUE
+from bot.models.track import AsyncAudioSource
 
 LOG = logging.getLogger('simple')
+TRACK_EVENTS_ENDPOINT = os.environ.get("TRACK_EVENTS_ENDPOINT")
 
 class VoiceContext:
 
@@ -47,7 +54,17 @@ class VoiceContext:
             self.current_track.source.volume = self._volume
             self.voice.play(self.current_track.source, after=self.play_next)
 
-            # TODO: emit a play event here
+            try:
+                play_event = self._construct_play_event(self.current_track.source)
+                tracks_future = functools.partial(requests.post, TRACK_EVENTS_ENDPOINT, data=json.dumps(play_event))
+                resp = await self.bot.loop.run_in_executor(None, tracks_future)
+            except Exception as e:
+                LOG.error(e)
+            finally:
+                if resp.status_code != 200:
+                    LOG.error(f"Error occurred with posting track event to Iduna with status code: {resp.status_code}")
+                else:
+                    LOG.info(f"Successful track event post to Iduna for track ID {self.current_track.source.id}")
 
             await self.current_track.source.channel.send(
                 embed=self.current_track.embed(
@@ -66,6 +83,19 @@ class VoiceContext:
     def skip(self):
         if self.is_playing:
             self.voice.stop()
+
+    def _construct_play_event(self, source: AsyncAudioSource):
+        return {
+            'id': source.id,
+            'requested_by': source.requested_by.name + "#" + source.requested_by.discriminator,
+            'event_type': 'PLAY',
+            'title': source.title,
+            'description': source.description,
+            'webpage_url': source.webpage_url,
+            'duration': source.duration,
+            'timestamp': datetime.now().isoformat(),
+            'guild_id': self._ctx.guild.id
+        }
 
     async def stop(self):
         self.tracks.clear()
