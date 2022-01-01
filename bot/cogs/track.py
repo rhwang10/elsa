@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import functools
+import requests
 
 from discord.ext import commands
 from cachetools import TTLCache
@@ -10,6 +12,9 @@ from bot.models.voice_context import VoiceContext
 from bot.exceptions.exceptions import YTDLException
 from bot.util.log import setup_logging_queue
 from bot.util.color import ICE_BLUE
+from bot.util.endpoints import (
+    TOP_TRACKS_ENDPOINT
+)
 
 LOG = logging.getLogger('simple')
 
@@ -145,6 +150,15 @@ class Music(commands.Cog):
 
         ctx.voice_context.tracks.shuffle()
         await ctx.send("Shuffled tracks in queue! Take a look with !peek {number}")
+
+    @commands.command(name='top')
+    async def _top(self, ctx:commands.Context, n: int = 1):
+        top_tracks_future = functools.partial(
+            requests.get,
+            TOP_TRACKS_ENDPOINT + str(ctx.guild.id),
+            params={'limit': n})
+        top_tracks_resp = await self.bot.loop.run_in_executor(None, top_tracks_future)
+        await ctx.send(embed=Track.topTracksEmbed(top_tracks_resp.json(), ICE_BLUE))
 
     @_join.before_invoke
     @_play.before_invoke

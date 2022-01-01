@@ -7,7 +7,7 @@ import logging
 
 from cachetools import TTLCache
 from discord.ext import commands
-
+from datetime import datetime
 
 from bot.util.log import setup_logging_queue
 
@@ -104,6 +104,23 @@ class Track:
                 .set_thumbnail(url=self.source.thumbnail)
                 .set_footer(text=f'Fetched from cache: {self.source.cached}'))
 
+        return embed
+
+    @staticmethod
+    def topTracksEmbed(top_tracks: dict, color: discord.Color):
+
+        embed = discord.Embed(
+            title='Top Tracks!',
+            color=color
+        )
+
+        for idx, (track_name, frequency) in enumerate(top_tracks.items()):
+            embed.add_field(
+                name=f'**{track_name}**',
+                value=f'> Rank: {idx + 1}\n> Times played: {frequency}',
+                inline=False
+            )
+        embed.set_footer(text=f'Data collected as of {datetime.now().isoformat()}')
         return embed
 
     def _convert_duration(self, duration):
