@@ -6,7 +6,6 @@ import json
 
 from bot.services.request_service import RequestService
 from bot.cache.token_cache import TokenCache
-from bot.models.track import AsyncAudioSource
 from bot.util.log import setup_logging_queue
 
 from bot.exceptions.exceptions import RequestException, CreateTrackEventException

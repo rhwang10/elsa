@@ -14,9 +14,6 @@ from bot.services.track_service import TrackService
 from bot.exceptions.exceptions import YTDLException
 from bot.util.log import setup_logging_queue
 from bot.util.color import ICE_BLUE
-from bot.util.endpoints import (
-    TOP_TRACKS_ENDPOINT
-)
 
 LOG = logging.getLogger('simple')
 
@@ -27,7 +24,6 @@ class Music(commands.Cog):
         self.track_service = track_service
         self.voice_contexts = {}
         self.metadata_cache = TTLCache(100, timedelta(hours=12), timer=datetime.now)
-        self.token_cache = TTLCache(2, timedelta(hours=12), timer=datetime.now)
 
     def get_voice_context(self, ctx: commands.Context):
         voice_context = self.voice_contexts.get(ctx.guild.id)

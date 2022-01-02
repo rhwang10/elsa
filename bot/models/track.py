@@ -17,6 +17,8 @@ LOG = logging.getLogger('simple')
 
 class AsyncAudioSource(discord.PCMVolumeTransformer):
 
+    # Workaround for age-restricted videos
+    # https://stackoverflow.com/questions/69901098/discord-py-ytdl-doesnt-play-age-restricted-videos
     YTDL_OPTIONS = {
         'format': 'bestaudio/best',
         'extractaudio': True,
