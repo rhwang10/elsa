@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from bot.models.track import AsyncAudioSource, Track
 from bot.models.voice_context import VoiceContext
+from bot.services.track_service import TrackService
 from bot.exceptions.exceptions import YTDLException
 from bot.util.log import setup_logging_queue
 from bot.util.color import ICE_BLUE
@@ -20,15 +21,17 @@ LOG = logging.getLogger('simple')
 
 class Music(commands.Cog):
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, track_service: TrackService):
         self.bot = bot
+        self.track_service = track_service
         self.voice_contexts = {}
         self.metadata_cache = TTLCache(100, timedelta(hours=12), timer=datetime.now)
+        self.token_cache = TTLCache(2, timedelta(hours=12), timer=datetime.now)
 
     def get_voice_context(self, ctx: commands.Context):
         voice_context = self.voice_contexts.get(ctx.guild.id)
         if not voice_context:
-            voice_context = VoiceContext(self.bot, ctx)
+            voice_context = VoiceContext(self.bot, ctx, self.track_service)
             self.voice_contexts[ctx.guild.id] = voice_context
 
         return voice_context
@@ -153,12 +156,8 @@ class Music(commands.Cog):
 
     @commands.command(name='top')
     async def _top(self, ctx:commands.Context, n: int = 1):
-        top_tracks_future = functools.partial(
-            requests.get,
-            TOP_TRACKS_ENDPOINT + str(ctx.guild.id),
-            params={'limit': n})
-        top_tracks_resp = await self.bot.loop.run_in_executor(None, top_tracks_future)
-        await ctx.send(embed=Track.topTracksEmbed(top_tracks_resp.json(), ICE_BLUE))
+        top_tracks = await self.track_service.get_top_tracks(ctx.guild.id, n)
+        await ctx.send(embed=Track.topTracksEmbed(top_tracks, ICE_BLUE))
 
     @_join.before_invoke
     @_play.before_invoke

@@ -3,27 +3,37 @@ import os
 import asyncio
 import time
 import requests
+import logging
 
 from discord import FFmpegPCMAudio
 from youtube_dl import YoutubeDL
 
 from discord.ext import commands
 
+from bot.cache.token_cache import TokenCache
 from bot.models.track import AsyncAudioSource
 from bot.cogs.track import Music
 from bot.cogs.latency import Latency
 
-CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
-USER_MSG_ENDPOINT = os.environ['USER_MSG_ENDPOINT']
+from bot.services.user_service import UserService
+from bot.services.message_service import MessageService
+from bot.services.track_service import TrackService
 
 from bot.util.log import setup_logging_queue
 
 setup_logging_queue()
+LOG = logging.getLogger('simple')
 
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 
+token_cache = TokenCache()
+
+user_service = UserService(token_cache)
+message_service = MessageService(token_cache)
+track_service = TrackService(token_cache)
+
 # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
-client.add_cog(Music(client))
+client.add_cog(Music(client, track_service))
 client.add_cog(Latency(client))
 
 # Called when the client is done preparing the data received
@@ -31,7 +41,7 @@ client.add_cog(Latency(client))
 # Client.guilds and co. are filled up.
 @client.event
 async def on_ready():
-    print("Connected")
+    LOG.info("Connected")
 
 # Called when the client has disconnected from Discord.
 # This could happen either through the internet being disconnected,
@@ -40,7 +50,7 @@ async def on_ready():
 # This function can be called many times.
 @client.event
 async def on_disconnect():
-    print("Disconnected")
+    LOG.info("Disconnected")
 
 # Called when a member updates their profile
 # This is called when one or more of the following things change
@@ -62,35 +72,15 @@ async def on_message(message):
         await ctx.send("🥰")
         return await ctx.invoke(client.get_command('play'), url="https://www.youtube.com/watch?v=l1uoTMkhUiE")
 
-    params = {
-        'name': message.author.name,
-        'id': message.author.discriminator
-    }
+    target_user_id = await user_service.get_user_id(message.author.name, message.author.discriminator)
+    message_to_send = await message_service.get_message_for_user(target_user_id)
 
-    user_response = get(CACHED_USER_ENDPOINT, params=params)
-
-    if not user_response:
-        print("No user found, exiting gracefully")
-        return
-
-    target_user_id = user_response["id"]
-    message_response = get(USER_MSG_ENDPOINT + str(target_user_id))
-
-    if message_response:
-        await _type(message.channel, message_response['message'])
+    if message_to_send:
+        await _type(message.channel, message_to_send)
 
 async def _type(channel, msg):
     await channel.trigger_typing()
     await asyncio.sleep(2)
     await channel.send(msg)
-
-def get(req, params=None):
-    try:
-        resp = requests.get(req, params=params)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.exceptions.HTTPError as err:
-        print(err)
-        return None
 
 client.run(os.environ.get("BOT_TOKEN"))

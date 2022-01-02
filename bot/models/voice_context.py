@@ -11,15 +11,20 @@ from discord.ext import commands
 from bot.models.queue import TrackQueue
 from bot.util.color import ICE_BLUE
 from bot.models.track import AsyncAudioSource
+from bot.services.track_service import TrackService
 
 LOG = logging.getLogger('simple')
 TRACK_EVENTS_ENDPOINT = os.environ.get("TRACK_EVENTS_ENDPOINT")
 
 class VoiceContext:
 
-    def __init__(self, bot: commands.Bot, ctx: commands.Context):
+    def __init__(self,
+                 bot: commands.Bot,
+                 ctx: commands.Context,
+                 track_service: TrackService):
         self.bot = bot
         self._ctx = ctx
+        self.track_service = track_service
 
         self.tracks = TrackQueue()
         self.next_track = asyncio.Event()
@@ -54,17 +59,8 @@ class VoiceContext:
             self.current_track.source.volume = self._volume
             self.voice.play(self.current_track.source, after=self.play_next)
 
-            try:
-                play_event = self._construct_play_event(self.current_track.source)
-                tracks_future = functools.partial(requests.post, TRACK_EVENTS_ENDPOINT, data=json.dumps(play_event))
-                resp = await self.bot.loop.run_in_executor(None, tracks_future)
-            except Exception as e:
-                LOG.error(e)
-            finally:
-                if resp.status_code != 200:
-                    LOG.error(f"Error occurred with posting track event to Iduna with status code: {resp.status_code}")
-                else:
-                    LOG.info(f"Successful track event post to Iduna for track ID {self.current_track.source.id}")
+            play_event = self._construct_play_event(self.current_track.source)
+            await self.track_service.post_track_event(play_event)
 
             await self.current_track.source.channel.send(
                 embed=self.current_track.embed(
