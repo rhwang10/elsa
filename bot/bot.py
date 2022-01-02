@@ -1,19 +1,14 @@
 import discord
 import os
 import asyncio
-import time
-import requests
 import logging
-
-from discord import FFmpegPCMAudio
-from youtube_dl import YoutubeDL
 
 from discord.ext import commands
 
-from bot.cache.token_cache import TokenCache
-from bot.models.track import AsyncAudioSource
 from bot.cogs.track import Music
 from bot.cogs.latency import Latency
+
+from bot.cache.token_cache import TokenCache
 
 from bot.services.user_service import UserService
 from bot.services.message_service import MessageService
@@ -25,6 +20,7 @@ setup_logging_queue()
 LOG = logging.getLogger('simple')
 
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
+client.remove_command('help')
 
 token_cache = TokenCache()
 

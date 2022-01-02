@@ -1,3 +1,4 @@
+import discord
 import asyncio
 import logging
 import functools
@@ -158,6 +159,68 @@ class Music(commands.Cog):
     async def _top(self, ctx:commands.Context, n: int = 1):
         top_tracks = await self.track_service.get_top_tracks(ctx.guild.id, n)
         await ctx.send(embed=Track.topTracksEmbed(top_tracks, ICE_BLUE))
+
+    @commands.command(name='help')
+    async def _help(self, ctx: commands.Context):
+        embed = (discord.Embed(
+            title='Command list',
+            color=ICE_BLUE)
+        .add_field(
+            name='**!play {url}**',
+            value='Queues up a track from YouTube. Must be in a voice channel to use',
+            inline=False
+        )
+        .add_field(
+            name='**!skip**',
+            value='Skips the track currently playing',
+            inline=False
+        )
+        .add_field(
+            name='**!join**',
+            value='Moves Elsa into the voice channel the user is currently in',
+            inline=False
+        )
+        .add_field(
+            name='**!leave**',
+            value='Removes Elsa from the voice channel the user is currently in',
+            inline=False
+        )
+        .add_field(
+            name='**!pause**',
+            value='Pauses the current track that is playing',
+            inline=False
+        )
+        .add_field(
+            name='**!resume**',
+            value='Resumes a track that has been paused',
+            inline=False
+        )
+        .add_field(
+            name='**!stop**',
+            value='Quits the current track, and clears the queue',
+            inline=False
+        )
+        .add_field(
+            name='**!queue**',
+            value='Gives the number of tracks currently queued',
+            inline=False
+        )
+        .add_field(
+            name='**!peek {n}**',
+            value='Shows the next n tracks that are in the queue',
+            inline=False
+        )
+        .add_field(
+            name='**!shuffle**',
+            value='Shuffles tracks in the existing queue',
+            inline=False
+        )
+        .add_field(
+            name='**!top**',
+            value='Displays a leaderboard of most freqently played tracks',
+            inline=False
+        ))
+        await ctx.send(embed=embed)
 
     @_join.before_invoke
     @_play.before_invoke
