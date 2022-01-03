@@ -5,4 +5,5 @@ psycopg2-binary
 PyNaCl
 youtube-dl
 cachetools
-janus
+elasticsearch
+elasticsearch-dsl
