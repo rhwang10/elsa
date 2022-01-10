@@ -58,6 +58,18 @@ class Music(commands.Cog):
 
         ctx.voice_context.voice = await dest.connect()
 
+    @commands.command(name='repeat')
+    async def _repeat(self, ctx: commands.Context, *, num: int):
+
+        if not ctx.voice_context.current_track:
+            await ctx.send("No track is currently playing!")
+
+        for _ in range(num):
+            await ctx.voice_context.tracks.put(ctx.voice_context.current_track)
+
+        await ctx.send(f"Enqueued {num} plays of {ctx.voice_context.current_track.source.title}")
+
+
     @commands.command(name='play')
     async def _play(self, ctx: commands.Context, *, url: str):
 
@@ -212,14 +224,20 @@ class Music(commands.Cog):
             inline=False
         )
         .add_field(
-            name='**!top**',
-            value='Displays a leaderboard of most freqently played tracks',
+            name='**!top {n}**',
+            value='Displays a leaderboard of N most freqently played tracks',
+            inline=False
+        )
+        .add_field(
+            name='**!repeat {n}**',
+            value='Queues up the currently playing track N times to repeat',
             inline=False
         ))
         await ctx.send(embed=embed)
 
     @_join.before_invoke
     @_play.before_invoke
+    @_repeat.before_invoke
     async def validate_voice_context(self, ctx: commands.Context):
         if not ctx.author.voice or not ctx.author.voice.channel:
             raise commands.CommandError("You aren't connected to a voice channel")
