@@ -68,7 +68,7 @@ async def on_message(message):
         await ctx.send("🥰")
         return await ctx.invoke(client.get_command('play'), url="https://www.youtube.com/watch?v=l1uoTMkhUiE")
 
-    target_user_id = await user_service.get_user_id(message.author.name, message.author.discriminator)
+    target_user_id = await user_service.get_user_id(message.author.id)
     message_to_send = await message_service.get_message_for_user(target_user_id)
 
     if message_to_send:

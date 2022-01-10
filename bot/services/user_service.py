@@ -18,11 +18,10 @@ class UserService(RequestService):
         super().__init__(token_cache)
         self.CACHED_USER_ENDPOINT = os.environ['CACHED_USER_ENDPOINT']
 
-    async def get_user_id(self, name: str, id: int):
+    async def get_user_id(self, discord_id: int):
 
         params = {
-            'name': name,
-            'id': id
+            'discord_id': discord_id
         }
 
         user_request = self._construct_awaitable(requests.get,
