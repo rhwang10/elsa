@@ -28,7 +28,7 @@ class Message(commands.Cog):
         req = {
             "author_user_id": str(author_user_id),
             "target_user_id": str(target_user_id),
-            "message": msg,
+            "message": targetUser + " " + msg,
             "is_active": True,
             "rule": {
                 "tokens": 1,
