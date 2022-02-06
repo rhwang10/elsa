@@ -13,6 +13,9 @@ class CreateTrackEventException(MusicException):
 class MessageException(Exception):
     pass
 
+class MessageCreateException(Exception):
+    pass
+
 class UserException(MessageException):
     pass
 

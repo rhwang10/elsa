@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from bot.cogs.track import Music
 from bot.cogs.latency import Latency
+from bot.cogs.message import Message
 
 from bot.cache.token_cache import TokenCache
 
@@ -31,6 +32,7 @@ track_service = TrackService(token_cache)
 # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
 client.add_cog(Music(client, track_service))
 client.add_cog(Latency(client))
+client.add_cog(Message(client, user_service, message_service))
 
 # Called when the client is done preparing the data received
 # from Discord. Usually after login is successful and the

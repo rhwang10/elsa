@@ -63,9 +63,11 @@ class Music(commands.Cog):
 
         if not ctx.voice_context.current_track:
             await ctx.send("No track is currently playing!")
+            return
 
         for _ in range(num):
-            await ctx.voice_context.tracks.put(ctx.voice_context.current_track)
+            t = Track(ctx.voice_context.current_track.source.webpage_url)
+            await ctx.voice_context.tracks.put(t)
 
         await ctx.send(f"Enqueued {num} plays of {ctx.voice_context.current_track.source.title}")
 
