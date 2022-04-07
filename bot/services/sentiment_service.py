@@ -17,18 +17,20 @@ class SentimentService(RequestService):
         super().__init__(token_cache)
         self.SENTIMENT_CREATE_ENDPOINT = os.environ.get("SENTIMENT_CREATE_ENDPOINT")
 
-    async def post_sentiment(self, discord_id: int, content: str):
+    async def get_sentiment(self, discord_id: int, content: str, shouldPersist=False):
 
         create_sentiment_callable = self._construct_awaitable(
             requests.post,
             self.SENTIMENT_CREATE_ENDPOINT,
-            data=json.dumps({"discord_id": discord_id, "content": content})
+            data=json.dumps({"discord_id": discord_id, "content": content}),
+            params={"persist": shouldPersist}
         )
 
         try:
-            await self._call(create_sentiment_callable)
-        except RequestException as err:
+            sentiment = await self._call(create_sentiment_callable)
+            return sentiment
+        except Exception as err:
             LOG.error(f"Error creating message sentiment record: {str(err)}")
             raise SentimentCreateException(err)
         finally:
-            LOG.info(f"Successful sentiment create event for discord_id: {discord_id}")
+            LOG.info(f"Successful sentiment analyzed for discordId: {discord_id}")
