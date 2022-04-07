@@ -24,3 +24,6 @@ class MessageSelectionException(MessageException):
 
 class RequestException(Exception):
     pass
+
+class SentimentCreateException(Exception):
+    pass

@@ -14,6 +14,7 @@ from bot.cache.token_cache import TokenCache
 from bot.services.user_service import UserService
 from bot.services.message_service import MessageService
 from bot.services.track_service import TrackService
+from bot.services.sentiment_service import SentimentService
 
 from bot.util.log import setup_logging_queue
 
@@ -28,6 +29,7 @@ token_cache = TokenCache()
 user_service = UserService(token_cache)
 message_service = MessageService(token_cache)
 track_service = TrackService(token_cache)
+sentiment_service = SentimentService(token_cache)
 
 # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
 client.add_cog(Music(client, track_service))
@@ -64,6 +66,10 @@ async def on_message(message):
 
     if message.author == client.user or message.content.startswith("!"):
         return
+
+    sentimentResp = await sentiment_service.post_sentiment(message.author.id, message.clean_content)
+
+    LOG.info(sentimentResp)
 
     if "sing your favorite song" in message.content:
         ctx = await client.get_context(message)
