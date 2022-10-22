@@ -63,3 +63,5 @@ async def main():
     async with client:
         await setup(client)
         await client.start(os.environ.get("BOT_TOKEN"))
+
+asyncio.run(main())
