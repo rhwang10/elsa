@@ -21,6 +21,11 @@ from bot.util.log import setup_logging_queue
 setup_logging_queue()
 LOG = logging.getLogger('simple')
 
+async def setup(client):
+    # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
+    await client.add_cog(Music(client))
+    await client.add_cog(Latency(client))
+
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 client.remove_command('help')
 
@@ -31,9 +36,6 @@ client.remove_command('help')
 # track_service = TrackService(token_cache)
 # sentiment_service = SentimentService(token_cache)
 
-# Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
-client.add_cog(Music(client))
-client.add_cog(Latency(client))
 
 # RIP the most annoying feature of all time
 # client.add_cog(Message(client, user_service, message_service, sentiment_service))
@@ -57,4 +59,7 @@ async def on_ready():
 async def on_disconnect():
     LOG.info("Disconnected")
 
-client.run(os.environ.get("BOT_TOKEN"))
+async def main():
+    async with client:
+        await setup(client)
+        await client.start(os.environ.get("BOT_TOKEN"))
