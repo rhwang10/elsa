@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 from bot.models.track import AsyncAudioSource, Track
 from bot.models.voice_context import VoiceContext
-from bot.services.track_service import TrackService
+# from bot.services.track_service import TrackService
 from bot.exceptions.exceptions import YTDLException
 from bot.util.log import setup_logging_queue
 from bot.util.color import ICE_BLUE
@@ -19,16 +19,16 @@ LOG = logging.getLogger('simple')
 
 class Music(commands.Cog):
 
-    def __init__(self, bot: commands.Bot, track_service: TrackService):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.track_service = track_service
+        # self.track_service = track_service
         self.voice_contexts = {}
         self.metadata_cache = TTLCache(100, timedelta(hours=12), timer=datetime.now)
 
     def get_voice_context(self, ctx: commands.Context):
         voice_context = self.voice_contexts.get(ctx.guild.id)
         if not voice_context:
-            voice_context = VoiceContext(self.bot, ctx, self.track_service)
+            voice_context = VoiceContext(self.bot, ctx)
             self.voice_contexts[ctx.guild.id] = voice_context
 
         return voice_context
@@ -165,10 +165,10 @@ class Music(commands.Cog):
         ctx.voice_context.tracks.shuffle()
         await ctx.send("Shuffled tracks in queue! Take a look with !peek {number}")
 
-    @commands.command(name='top')
-    async def _top(self, ctx:commands.Context, n: int = 1):
-        top_tracks = await self.track_service.get_top_tracks(ctx.guild.id, n)
-        await ctx.send(embed=Track.topTracksEmbed(top_tracks, ICE_BLUE))
+    # @commands.command(name='top')
+    # async def _top(self, ctx:commands.Context, n: int = 1):
+    #     top_tracks = await self.track_service.get_top_tracks(ctx.guild.id, n)
+    #     await ctx.send(embed=Track.topTracksEmbed(top_tracks, ICE_BLUE))
 
     @commands.command(name='help')
     async def _help(self, ctx: commands.Context):
@@ -225,11 +225,11 @@ class Music(commands.Cog):
             value='Shuffles tracks in the existing queue',
             inline=False
         )
-        .add_field(
-            name='**!top {n}**',
-            value='Displays a leaderboard of N most freqently played tracks',
-            inline=False
-        )
+        # .add_field(
+        #     name='**!top {n}**',
+        #     value='Displays a leaderboard of N most freqently played tracks',
+        #     inline=False
+        # )
         .add_field(
             name='**!repeat {n}**',
             value='Queues up the currently playing track N times to repeat',
