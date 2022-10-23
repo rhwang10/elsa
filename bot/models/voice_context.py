@@ -59,12 +59,13 @@ class VoiceContext:
             try:
                 self.current_track.source.volume = self._volume
                 # this is for local, assuming you installed ffmpeg and opus via brew
-                if not discord.opus.is_loaded() and os.environ.get("env") != "prod":
+                if not discord.opus.is_loaded() and os.environ.get("ENV") != "prod":
                     LOG.info('loading opus')
                     discord.opus.load_opus('libopus.dylib')
                 self.voice.play(self.current_track.source, after=self.play_next)
             except discord.ClientException as e:
                 LOG.error("client exception")
+                LOG.error(e)
             except TypeError as e:
                 LOG.error("type error?")
                 LOG.error(e)
