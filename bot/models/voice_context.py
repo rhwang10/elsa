@@ -5,6 +5,7 @@ import os
 import json
 import functools
 from datetime import datetime
+import discord
 
 from async_timeout import timeout
 from discord.ext import commands
@@ -55,10 +56,24 @@ class VoiceContext:
                 return
 
             LOG.info(f"Pulled in new track! {self.current_track.source.title}")
-            self.current_track.source.volume = self._volume
-            self.voice.play(self.current_track.source, after=self.play_next)
-
-            play_event = self._construct_play_event(self.current_track.source)
+            try:
+                self.current_track.source.volume = self._volume
+                # this is for local, assuming you installed ffmpeg and opus via brew
+                if not discord.opus.is_loaded() and os.environ.get("env") != "prod":
+                    LOG.info('loading opus')
+                    discord.opus.load_opus('libopus.dylib')
+                self.voice.play(self.current_track.source, after=self.play_next)
+            except discord.ClientException as e:
+                LOG.error("client exception")
+            except TypeError as e:
+                LOG.error("type error?")
+                LOG.error(e)
+            except discord.opus.OpusNotLoaded as e:
+                LOG.error("opus not loaded")
+            except Exception as e:
+                LOG.error('something else')
+                LOG.error(e)
+            # play_event = self._construct_play_event(self.current_track.source)
             # await self.track_service.post_track_event(play_event)
 
             await self.current_track.source.channel.send(
