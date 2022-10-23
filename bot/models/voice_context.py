@@ -64,16 +64,25 @@ class VoiceContext:
                     discord.opus.load_opus('libopus.dylib')
                 self.voice.play(self.current_track.source, after=self.play_next)
             except discord.ClientException as e:
-                LOG.error("client exception")
-                LOG.error(e)
+                LOG.error("Discord Client exception")
+                await self._ctx.send("Something went wrong, please try a different track!")
+                self.play_next()
             except TypeError as e:
-                LOG.error("type error?")
+                LOG.error("Type Error")
                 LOG.error(e)
+                await self._ctx.send("Something went wrong, please try a different track!")
+                self.play_next()
             except discord.opus.OpusNotLoaded as e:
-                LOG.error("opus not loaded")
+                LOG.error("Opus not loaded")
+                await self._ctx.send("Something went wrong, please try a different track!")
+                self.play_next()
             except Exception as e:
-                LOG.error('something else')
-                LOG.error(e)
+                LOG.error('Unknown exception')
+                await self._ctx.send("Something went wrong, please try a different track!")
+                self.play_next()
+
+
+
             # play_event = self._construct_play_event(self.current_track.source)
             # await self.track_service.post_track_event(play_event)
 
@@ -83,6 +92,7 @@ class VoiceContext:
                     color=ICE_BLUE
                 )
             )
+
             await self.next_track.wait()
 
     def play_next(self, error=None):

@@ -33,7 +33,8 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         'no_warnings': True,
         'default_search': 'auto',
         'source_address': '0.0.0.0',
-        'listformats': True
+        'listformats': True,
+        'cachedir': False,
     }
 
     FFMPEG_OPTIONS = {
@@ -84,6 +85,10 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
 
         if metadata is None or 'formats' not in metadata or not metadata['formats']:
             raise YTDLException(f"Nothing found for url: {url}")
+        
+        if 'quality' not in metadata['formats'][0]:
+            LOG.info("No quality flag, using the first option")
+            return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata, cached=cached)
 
         # pick the best audio quality, I'm guessing this is the quality flag?
         sorted_formats = sorted(metadata['formats'], key=lambda x: x['quality'], reverse=True)
