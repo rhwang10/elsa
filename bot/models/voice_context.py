@@ -58,10 +58,6 @@ class VoiceContext:
             LOG.info(f"Pulled in new track! {self.current_track.source.title}")
             try:
                 self.current_track.source.volume = self._volume
-                # this is for local, assuming you installed ffmpeg and opus via brew
-                if not discord.opus.is_loaded() and os.environ.get("ENV") != "prod":
-                    LOG.info('loading opus')
-                    discord.opus.load_opus('libopus.dylib')
                 self.voice.play(self.current_track.source, after=self.play_next)
             except discord.ClientException as e:
                 LOG.error("Discord Client exception")

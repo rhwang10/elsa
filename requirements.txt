@@ -1,7 +1,6 @@
 discord.py
 asyncio
 requests
-psycopg2-binary
 PyNaCl
 youtube-dl
 cachetools
