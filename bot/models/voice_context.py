@@ -7,7 +7,7 @@ import functools
 from datetime import datetime
 import discord
 
-from async_timeout import timeout
+# from async_timeout import timeout
 from discord.ext import commands
 from bot.models.queue import TrackQueue
 from bot.util.color import ICE_BLUE
@@ -48,7 +48,7 @@ class VoiceContext:
             self.next_track.clear()
 
             try:
-                async with timeout(900): # If nothing new in 15 minutes, quit
+                async with asyncio.timeout(900): # If nothing new in 15 minutes, quit
                     self.current_track = await self.tracks.get()
             except asyncio.TimeoutError:
                 LOG.info("Loop timed out, exiting")
