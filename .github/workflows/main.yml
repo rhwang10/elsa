@@ -29,5 +29,6 @@ jobs:
           with:
             appSourcePath: ${{ github.workspace }}
             acrName: elsaregistry
-            imageToBuild: elsaregistry.azurecr.io/elsa:latest
+            containerAppName: elsa
+            resourceGroupName: elsa-resource-group
             environmentVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }}
