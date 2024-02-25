@@ -1,5 +1,5 @@
 on: [push]
-name: Linux_Container_Workflow
+name: Build image, push to ACR, and deploy to Container Apps
 
 jobs:
     build-and-deploy:

@@ -64,4 +64,14 @@ async def main():
         await setup(client)
         await client.start(os.environ.get("BOT_TOKEN"))
 
+@client.hybrid_command()
+async def test(ctx):
+    await ctx.send("This is a hybrid command!")
+
+@client.command()
+async def sync(ctx):
+    print("sync command")
+    await client.tree.sync()
+    await ctx.send('Command tree synced.')
+
 asyncio.run(main())
