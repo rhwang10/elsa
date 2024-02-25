@@ -68,6 +68,26 @@ async def main():
 async def test(ctx):
     await ctx.send("This is a hybrid command!")
 
+
+@client.hybrid_command()
+async def register(ctx):
+    await ctx.send("Would you like to give Elsa permission to collect your message data (Respond yes/y)?")
+
+    def check_response(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel
+    
+    try:
+        response = await client.wait_for('message', check=check_response)
+    except asyncio.TimeoutError:
+        await ctx.send("No response, timing out..")
+        return
+
+    if response.content.lower() not in ["yes", "y"]:
+        await ctx.send("Ok, I won't collect your data")
+        return
+    
+    await ctx.send(f"Ack, Elsa will collect and save {ctx.author.global_name}'s message history")
+
 @client.command()
 async def sync(ctx):
     print("sync command")
