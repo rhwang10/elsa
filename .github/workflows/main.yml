@@ -30,4 +30,4 @@ jobs:
             appSourcePath: ${{ github.workspace }}
             acrName: elsaregistry
             imageToBuild: elsaregistry.azurecr.io/elsa:latest
-            environmentalVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            environmentVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }}
