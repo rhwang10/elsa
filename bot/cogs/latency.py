@@ -11,3 +11,7 @@ class Latency(commands.Cog):
     @commands.command(name='ping')
     async def _ping(self, ctx: commands.Context):
         await ctx.reply(f'Pong ~ took about {round(self.bot.latency * 1000)} ms')
+
+    @commands.command(name='pong')
+    async def _pong(self, ctx: commands.Context):
+        await ctx.reply("Wait, I'm supposed to do that...")
