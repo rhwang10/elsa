@@ -14,21 +14,22 @@ jobs:
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-        # - name: 'Build and push image'
-        #   uses: azure/docker-login@v1
-        #   with:
-        #     login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        #     username: ${{ secrets.REGISTRY_USERNAME }}
-        #     password: ${{ secrets.REGISTRY_PASSWORD }}
-        # - run: |
-        #     docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
-        #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
 
         - name: 'Deploy Container App'
           uses: azure/container-apps-deploy-action@v1
           with:
-            appSourcePath: ${{ github.workspace }}
-            acrName: elsaregistry
-            containerAppName: elsa
-            resourceGroup: elsa-resource-group
+            # appSourcePath: ${{ github.workspace }}
+            # acrName: elsaregistry
+            # containerAppName: elsa
+            # resourceGroup: elsa-resource-group
+            imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
             environmentVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }}
