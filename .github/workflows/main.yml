@@ -31,5 +31,5 @@ jobs:
             acrName: elsaregistry
             containerAppName: elsa
             resourceGroup: elsa-resource-group
-            imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
-            environmentVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            # imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/elsa:latest
+            environmentVariables: BOT_TOKEN=${{ secrets.BOT_TOKEN }} REDIS_HOST=${{ secrets.REDIS_HOST }} REDIS_PORT=${{ secrets.REDIS_PORT }} REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
