@@ -16,8 +16,6 @@ class Latency(commands.Cog):
     async def _ping(self, ctx: commands.Context):
         user = ctx.author.id
 
-        print(user)
-
         new_count = self.redis.increment_sorted_set(LATENCY_SORTED_SET, user, 1)
 
         await ctx.reply(f'Pong ~ took about {round(self.bot.latency * 1000)} ms. {ctx.author.global_name} has pinged {new_count} times!')
