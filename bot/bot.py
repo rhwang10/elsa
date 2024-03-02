@@ -7,6 +7,8 @@ from discord.ext import commands
 
 from bot.cogs.track import Music
 from bot.cogs.latency import Latency
+
+from bot.redis.client import RedisClient
 # from bot.cogs.message import Message
 # from bot.cogs.sentiment import Sentiment
 # from bot.cache.token_cache import TokenCache
@@ -21,15 +23,21 @@ from bot.util.log import setup_logging_queue
 setup_logging_queue()
 LOG = logging.getLogger('simple')
 
-async def setup(client):
+async def setup(client, redisClient):
     # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
     await client.add_cog(Music(client))
-    await client.add_cog(Latency(client))
+    await client.add_cog(Latency(client, redisClient))
 
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 client.remove_command('help')
 
 # token_cache = TokenCache()
+
+redisClient = RedisClient({
+    'host': os.environ.get('REDIS_HOST') or 'localhost',
+    'port': os.environ.get('REDIS_PORT') or 6379,
+    'password': os.environ.get('REDIS_PASSWORD') or 'password'
+})
 
 # user_service = UserService(token_cache)
 # message_service = MessageService(token_cache)
@@ -61,7 +69,7 @@ async def on_disconnect():
 
 async def main():
     async with client:
-        await setup(client)
+        await setup(client, redisClient)
         await client.start(os.environ.get("BOT_TOKEN"))
 
 @client.hybrid_command()

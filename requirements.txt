@@ -3,3 +3,4 @@ requests
 PyNaCl
 youtube-dl
 cachetools
+redis
