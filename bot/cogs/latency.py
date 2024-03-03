@@ -25,5 +25,5 @@ class Latency(commands.Cog):
         await ctx.reply("Wait, I'm supposed to do that...")
     
     @commands.command(name='pingthese')
-    async def _pong(self, ctx: commands.Context):
+    async def _pingthese(self, ctx: commands.Context):
         await ctx.reply(f"{ctx.author.global_name} is a massive bitch")

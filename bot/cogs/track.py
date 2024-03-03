@@ -74,11 +74,9 @@ class Music(commands.Cog):
 
     @commands.command(name='play')
     async def _play(self, ctx: commands.Context, *, url: str):
-
         # This might happen if play is invoked from another coroutine
         if not hasattr(ctx, "voice_context"):
             ctx.voice_context = self.get_voice_context(ctx)
-
         if not ctx.voice_context.voice:
             await ctx.invoke(self._join)
 

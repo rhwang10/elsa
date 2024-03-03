@@ -46,16 +46,18 @@ class VoiceContext:
         LOG.info("Initializing audio loop")
         while True:
             self.next_track.clear()
+            LOG.info("Loop is initialized, waiting for new track")
 
             try:
-                async with asyncio.timeout(900): # If nothing new in 15 minutes, quit
-                    self.current_track = await self.tracks.get()
+                # Wait 1 hour for something to get queued up and disconnect otherwise
+                self.current_track = await asyncio.wait_for(self.tracks.get(), timeout=3600)
             except asyncio.TimeoutError:
                 LOG.info("Loop timed out, exiting")
                 self.bot.loop.create_task(self.stop())
                 return
 
             LOG.info(f"Pulled in new track! {self.current_track.source.title}")
+
             try:
                 self.current_track.source.volume = self._volume
                 self.voice.play(self.current_track.source, after=self.play_next)

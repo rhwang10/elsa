@@ -1,6 +1,6 @@
 discord.py
 requests
 PyNaCl
-youtube-dl
+yt-dlp
 cachetools
 redis

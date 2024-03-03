@@ -1,6 +1,7 @@
 import discord
 import functools
-import youtube_dl
+# import youtube_dl
+import yt_dlp
 import asyncio
 import concurrent.futures
 import logging
@@ -42,7 +43,7 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         'options': '-vn'
     }
 
-    yt = youtube_dl.YoutubeDL(YTDL_OPTIONS)
+    yt = yt_dlp.YoutubeDL(YTDL_OPTIONS)
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=6)
     cache_l = asyncio.Lock()
 
@@ -86,15 +87,17 @@ class AsyncAudioSource(discord.PCMVolumeTransformer):
         if metadata is None or 'formats' not in metadata or not metadata['formats']:
             raise YTDLException(f"Nothing found for url: {url}")
         
-        if 'quality' not in metadata['formats'][0]:
-            LOG.info("No quality flag, using the first option")
-            return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata, cached=cached)
+        options = []
+        for format in metadata['formats']:
+            if "audio_channels" in format and format["audio_channels"] is not None and format["audio_channels"] != "None":
+                options.append(format)
 
-        # pick the best audio quality, I'm guessing this is the quality flag?
-        sorted_formats = sorted(metadata['formats'], key=lambda x: x['quality'], reverse=True)
-        LOG.info(f"Fetched URL: {sorted_formats[0]['url']}")
+        LOG.info(f"Fetched options: {options}")
 
-        return cls(ctx, discord.FFmpegPCMAudio(metadata['formats'][0]['url'], **cls.FFMPEG_OPTIONS), data=metadata, cached=cached)
+        sorted_formats = sorted(options, key=lambda x: x['quality'], reverse=True)
+        LOG.info(f"Fetched URL: {sorted_formats[0]['url']} with quality: {sorted_formats[0]['quality']}")
+
+        return cls(ctx, discord.FFmpegPCMAudio(sorted_formats[0]['url'], **cls.FFMPEG_OPTIONS), data=metadata, cached=cached)
 
 class Track:
 
