@@ -1,11 +1,15 @@
 import random
+import logging
 import yfinance
 import discord
+
 from cachetools import TTLCache
 from datetime import datetime, timedelta
 from discord.ext import commands
 
 from bot.util.color import RED, GREEN
+
+LOG = logging.getLogger('simple')
 
 class Stock:
 
@@ -63,22 +67,17 @@ class Stocks(commands.Cog):
         user = ctx.author.id
         stock_ticker = ticker.upper()
 
-
-
         try:
             if stock_ticker in self.cache:
-                print("fetched from cache")
-                stock = self.cache[stock_ticker]
+                LOG.info(f"Fetched {stock_ticker} from cache")
+                stock_info = self.cache[stock_ticker]
             else:
-                stock = (yfinance.Ticker(stock_ticker)).info
-                self.cache[stock_ticker] = Stock(stock)
+                stock_info = (yfinance.Ticker(stock_ticker)).info
+                self.cache[stock_ticker] = stock_info
         except Exception as e:
+            LOG.error(f"Failed to fetch {stock_ticker} from yfinance: {e}")
             await ctx.reply("Something went wrong, maybe this ticker does not exist. Try again later")
             return
 
-        current_price = stock["currentPrice"]
-        previous_close = stock["regularMarketPreviousClose"]
-        percent_change = ((current_price - previous_close) / previous_close) * 100
-
-        await ctx.send(embed=Stock(stock).embed())
+        await ctx.send(embed=Stock(stock_info).embed())
         
