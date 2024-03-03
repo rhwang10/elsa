@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from bot.cogs.track import Music
 from bot.cogs.latency import Latency
+from bot.cogs.stocks import Stocks
 
 from bot.redis.client import RedisClient
 # from bot.cogs.message import Message
@@ -27,6 +28,7 @@ async def setup(client, redisClient):
     # Music Cog inspired by https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
     await client.add_cog(Music(client))
     await client.add_cog(Latency(client, redisClient))
+    await client.add_cog(Stocks(client))
 
 client = commands.Bot(intents=discord.Intents.all(), command_prefix='!')
 client.remove_command('help')
