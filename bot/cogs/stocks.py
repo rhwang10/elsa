@@ -14,15 +14,15 @@ LOG = logging.getLogger('simple')
 class Stock:
 
     DOWNWARD = [
-        ":CEASE:",
-        ":s2jFEELS:",
-        ":Sadge:"
+        "<:CEASE:1208948231590121502>",
+        "<:s2jFEELS:844089871424684052>",
+        "<:Sadge:805991489854898186>"
     ]
 
     UPWARD = [
-        ":POGGERS:",
-        ":Smilers:",
-        ":peepoBlanket:"
+        "<:POGGERS:805991381314306079>",
+        "<:Smilers:1156459698187415552>",
+        "<:peepoBlanket:1208948233020112947>"
     ]
 
     def __init__(self, info):
@@ -67,17 +67,19 @@ class Stocks(commands.Cog):
         user = ctx.author.id
         stock_ticker = ticker.upper()
 
+
+        if stock_ticker in self.cache:
+            LOG.info(f"Fetched {stock_ticker} from cache")
+            stock_info = self.cache[stock_ticker]
+        else:
+            stock = yfinance.Ticker(stock_ticker)
+            stock_info = stock.info
+            self.cache[stock_ticker] = stock_info
         try:
-            if stock_ticker in self.cache:
-                LOG.info(f"Fetched {stock_ticker} from cache")
-                stock_info = self.cache[stock_ticker]
-            else:
-                stock_info = (yfinance.Ticker(stock_ticker)).info
-                self.cache[stock_ticker] = stock_info
+            stock_price = stock_info["currentPrice"]
         except Exception as e:
             LOG.error(f"Failed to fetch {stock_ticker} from yfinance: {e}")
-            await ctx.reply("Something went wrong, maybe this ticker does not exist. Try again later")
-            return
+            await ctx.send("Something went wrong, maybe this ticker does not exist. Try again later")
 
         await ctx.send(embed=Stock(stock_info).embed())
         
